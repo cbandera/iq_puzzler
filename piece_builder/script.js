@@ -6,6 +6,8 @@ const savePieceButton = document.getElementById('save-piece-button');
 const libraryContainer = document.getElementById('piece-library');
 const clearLibraryButton = document.getElementById('clear-library');
 const colorValueDisplay = document.getElementById('color-value');
+const exportLibraryButton = document.getElementById('export-library');
+const importInput = document.getElementById('import-input');
 
 // Track the piece being edited
 let editingPieceElement = null;
@@ -123,7 +125,7 @@ function loadLibrary() {
 // Save library to localStorage
 function saveLibrary() {
     const pieces = Array.from(document.querySelectorAll('.library-item')).map(item => {
-        const name = item.querySelector('.library-item-info span').textContent;
+        const name = item.querySelector('.library-item-name').textContent;
         const color = item.querySelector('.library-item-preview').style.backgroundColor;
         const grid = Array.from(item.querySelectorAll('.library-item-cell')).map(cell => 
             cell.classList.contains('active')
@@ -149,13 +151,23 @@ function createLibraryItem(name, color, grid) {
 
     const libraryItem = document.createElement('div');
     libraryItem.className = 'library-item';
-    libraryItem.innerHTML = `
-        <div class="library-item-info">
-            <span>${name}</span>
-            <div class="library-item-preview" style="background-color: ${color}"></div>
-        </div>
-    `;
-    libraryItem.insertBefore(gridPreview, libraryItem.firstChild);
+    
+    const leftSection = document.createElement('div');
+    leftSection.className = 'library-item-info';
+    leftSection.appendChild(gridPreview);
+    
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'library-item-name';
+    nameSpan.textContent = name;
+    leftSection.appendChild(nameSpan);
+    
+    const rightSection = document.createElement('div');
+    rightSection.className = 'library-item-right';
+    
+    const colorPreview = document.createElement('div');
+    colorPreview.className = 'library-item-preview';
+    colorPreview.style.backgroundColor = color;
+    rightSection.appendChild(colorPreview);
     
     const controls = document.createElement('div');
     controls.className = 'library-item-controls';
@@ -163,7 +175,10 @@ function createLibraryItem(name, color, grid) {
         <button class="edit-button" onclick="editPiece(this)">Edit</button>
         <button class="delete-button" onclick="deletePiece(this)">Delete</button>
     `;
-    libraryItem.appendChild(controls);
+    rightSection.appendChild(controls);
+    
+    libraryItem.appendChild(leftSection);
+    libraryItem.appendChild(rightSection);
     
     // Store the piece data for easy access
     libraryItem.dataset.pieceData = JSON.stringify({ name, color, grid });
@@ -207,6 +222,7 @@ function deletePiece(button) {
     }
     libraryItem.remove();
     saveLibrary();
+    updatePieceCount();
 }
 
 // Reset editor to initial state
@@ -222,10 +238,12 @@ function resetEditor() {
 
 // Clear all pieces
 clearLibraryButton.addEventListener('click', function() {
-    if (confirm('Are you sure you want to clear all pieces? This cannot be undone.')) {
-        Array.from(libraryContainer.querySelectorAll('.library-item')).forEach(item => item.remove());
+    if (confirm('Are you sure you want to clear the entire library?')) {
+        const library = document.getElementById('piece-library');
+        Array.from(library.querySelectorAll('.library-item')).forEach(item => item.remove());
         localStorage.removeItem('pieceLibrary');
         resetEditor();
+        updatePieceCount();
     }
 });
 
@@ -250,13 +268,76 @@ savePieceButton.addEventListener('click', function() {
     
     // Save to localStorage
     saveLibrary();
+    updatePieceCount();
     
     // Reset the editor
     resetEditor();
+});
+
+// Update piece count in the library header
+function updatePieceCount() {
+    const count = document.querySelectorAll('.library-item').length;
+    document.querySelector('.piece-count').textContent = `(${count} piece${count !== 1 ? 's' : ''})`;
+}
+
+// Export library as JSON file
+exportLibraryButton.addEventListener('click', function() {
+    const pieces = Array.from(document.querySelectorAll('.library-item')).map(item => {
+        const name = item.querySelector('.library-item-name').textContent;
+        const color = item.querySelector('.library-item-preview').style.backgroundColor;
+        const grid = Array.from(item.querySelectorAll('.library-item-cell')).map(cell => 
+            cell.classList.contains('active')
+        );
+        return { name, color, grid };
+    });
+    
+    const blob = new Blob([JSON.stringify(pieces, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'puzzle_pieces.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
+
+// Import library from JSON file
+importInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const pieces = JSON.parse(e.target.result);
+            if (!Array.isArray(pieces)) throw new Error('Invalid format');
+            
+            if (confirm('This will replace your current library. Continue?')) {
+                // Clear current library
+                const library = document.getElementById('piece-library');
+                Array.from(library.querySelectorAll('.library-item')).forEach(item => item.remove());
+                
+                // Add imported pieces
+                pieces.forEach(piece => {
+                    const libraryItem = createLibraryItem(piece.name, piece.color, piece.grid);
+                    library.appendChild(libraryItem);
+                });
+                
+                saveLibrary();
+                updatePieceCount();
+            }
+        } catch (err) {
+            alert('Error importing file: Invalid format');
+        }
+    };
+    reader.readAsText(file);
+    this.value = ''; // Reset file input
 });
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     initializeGrid();
     loadLibrary();
+    updatePieceCount();
 });
