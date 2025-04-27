@@ -7,6 +7,9 @@ const libraryContainer = document.getElementById('piece-library');
 const clearLibraryButton = document.getElementById('clear-library');
 const colorValueDisplay = document.getElementById('color-value');
 
+// Track the piece being edited
+let editingPieceElement = null;
+
 // Initialize the color picker
 const colorPicker = new iro.ColorPicker('#color-wheel', {
     width: 200,
@@ -33,6 +36,34 @@ colorPicker.on('color:change', function(color) {
     document.querySelectorAll('.grid-cell.active').forEach(cell => {
         cell.style.backgroundColor = color.hexString;
     });
+    
+    if (editingPieceElement && savePieceButton.textContent === 'Save Piece') {
+        // User changed color while editing a piece
+        if (confirm('Do you want to create a new piece instead of editing the current one?')) {
+            resetEditor();
+        } else {
+            // Restore the editing state
+            const pieceData = JSON.parse(editingPieceElement.dataset.pieceData);
+            colorNameInput.value = pieceData.name;
+            colorPicker.color.set(pieceData.color);
+            savePieceButton.textContent = 'Update Piece';
+        }
+    }
+});
+
+// Handle name input changes
+colorNameInput.addEventListener('input', function() {
+    if (editingPieceElement && savePieceButton.textContent === 'Save Piece') {
+        // User started typing a new name while editing a piece
+        if (confirm('Do you want to create a new piece instead of editing the current one?')) {
+            resetEditor();
+        } else {
+            // Restore the editing state
+            const pieceData = JSON.parse(editingPieceElement.dataset.pieceData);
+            colorNameInput.value = pieceData.name;
+            savePieceButton.textContent = 'Update Piece';
+        }
+    }
 });
 
 // Initialize grid
@@ -41,6 +72,29 @@ function initializeGrid() {
         const cell = document.createElement('div');
         cell.className = 'grid-cell';
         cell.addEventListener('click', function() {
+            if (editingPieceElement && savePieceButton.textContent === 'Save Piece') {
+                // User started modifying grid while editing a piece
+                if (confirm('Do you want to create a new piece instead of editing the current one?')) {
+                    resetEditor();
+                } else {
+                    // Restore the editing state
+                    const pieceData = JSON.parse(editingPieceElement.dataset.pieceData);
+                    colorNameInput.value = pieceData.name;
+                    colorPicker.color.set(pieceData.color);
+                    document.querySelectorAll('.grid-cell').forEach((cell, index) => {
+                        if (pieceData.grid[index]) {
+                            cell.classList.add('active');
+                            cell.style.backgroundColor = pieceData.color;
+                        } else {
+                            cell.classList.remove('active');
+                            cell.style.backgroundColor = '#f9f9f9';
+                        }
+                    });
+                    savePieceButton.textContent = 'Update Piece';
+                    return;
+                }
+            }
+            
             this.classList.toggle('active');
             if (this.classList.contains('active')) {
                 this.style.backgroundColor = colorPicker.color.hexString;
@@ -105,26 +159,77 @@ function createLibraryItem(name, color, grid) {
     
     const controls = document.createElement('div');
     controls.className = 'library-item-controls';
-    controls.innerHTML = '<button onclick="deletePiece(this)">Delete</button>';
+    controls.innerHTML = `
+        <button class="edit-button" onclick="editPiece(this)">Edit</button>
+        <button class="delete-button" onclick="deletePiece(this)">Delete</button>
+    `;
     libraryItem.appendChild(controls);
+    
+    // Store the piece data for easy access
+    libraryItem.dataset.pieceData = JSON.stringify({ name, color, grid });
     
     return libraryItem;
 }
 
+// Edit piece
+function editPiece(button) {
+    const libraryItem = button.closest('.library-item');
+    const pieceData = JSON.parse(libraryItem.dataset.pieceData);
+    
+    // Load piece data into editor
+    colorNameInput.value = pieceData.name;
+    colorPicker.color.set(pieceData.color);
+    
+    // Update grid
+    const gridCells = document.querySelectorAll('.grid-cell');
+    gridCells.forEach((cell, index) => {
+        if (pieceData.grid[index]) {
+            cell.classList.add('active');
+            cell.style.backgroundColor = pieceData.color;
+        } else {
+            cell.classList.remove('active');
+            cell.style.backgroundColor = '#f9f9f9';
+        }
+    });
+    
+    // Store reference to the piece being edited
+    editingPieceElement = libraryItem;
+    
+    // Change save button text
+    savePieceButton.textContent = 'Update Piece';
+}
+
 // Delete piece and update storage
 function deletePiece(button) {
-    button.closest('.library-item').remove();
+    const libraryItem = button.closest('.library-item');
+    if (editingPieceElement === libraryItem) {
+        resetEditor();
+    }
+    libraryItem.remove();
     saveLibrary();
 }
 
-// Event Listeners
+// Reset editor to initial state
+function resetEditor() {
+    editingPieceElement = null;
+    savePieceButton.textContent = 'Save Piece';
+    document.querySelectorAll('.grid-cell').forEach(cell => {
+        cell.classList.remove('active');
+        cell.style.backgroundColor = '#f9f9f9';
+    });
+    colorNameInput.value = '';
+}
+
+// Clear all pieces
 clearLibraryButton.addEventListener('click', function() {
     if (confirm('Are you sure you want to clear all pieces? This cannot be undone.')) {
         Array.from(libraryContainer.querySelectorAll('.library-item')).forEach(item => item.remove());
         localStorage.removeItem('pieceLibrary');
+        resetEditor();
     }
 });
 
+// Save piece functionality
 savePieceButton.addEventListener('click', function() {
     const name = colorNameInput.value;
     const color = colorPicker.color.hexString;
@@ -134,17 +239,20 @@ savePieceButton.addEventListener('click', function() {
     
     const libraryItem = createLibraryItem(name, color, grid);
     const libraryControls = libraryContainer.querySelector('.library-controls');
-    libraryContainer.insertBefore(libraryItem, libraryControls.nextSibling);
+    
+    if (editingPieceElement) {
+        // Replace the existing piece
+        libraryContainer.replaceChild(libraryItem, editingPieceElement);
+    } else {
+        // Add new piece
+        libraryContainer.insertBefore(libraryItem, libraryControls.nextSibling);
+    }
     
     // Save to localStorage
     saveLibrary();
     
-    // Reset the grid
-    document.querySelectorAll('.grid-cell').forEach(cell => {
-        cell.classList.remove('active');
-        cell.style.backgroundColor = '#f9f9f9';
-    });
-    colorNameInput.value = '';
+    // Reset the editor
+    resetEditor();
 });
 
 // Initialize the application
