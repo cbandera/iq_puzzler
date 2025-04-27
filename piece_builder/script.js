@@ -303,6 +303,10 @@ exportLibraryButton.addEventListener('click', function() {
 });
 
 // Import library from JSON file
+document.getElementById('import-library').addEventListener('click', function() {
+    document.getElementById('import-input').click();
+});
+
 importInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
