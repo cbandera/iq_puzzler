@@ -74,6 +74,26 @@
             background: #45a049;
         }
 
+        .library-controls {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .clear-button {
+            padding: 6px 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .clear-button:hover {
+            background: #c82333;
+        }
+
         #piece-library {
             border: 1px solid #ccc;
             padding: 10px;
@@ -150,99 +170,11 @@
     </div>
     <div id="piece-library">
         <h2>Piece Library</h2>
+        <div class="library-controls">
+            <button class="clear-button" id="clear-library">Clear All</button>
+        </div>
     </div>
 
-    <script>
-        // Initialize the color picker
-        const colorPicker = new iro.ColorPicker('#color-wheel', {
-            width: 200,
-            color: "#0000ff",
-            borderWidth: 1,
-            borderColor: "#ccc",
-            layout: [
-                { 
-                    component: iro.ui.Wheel,
-                    options: {}
-                },
-                {
-                    component: iro.ui.Slider,
-                    options: {
-                        sliderType: 'value'
-                    }
-                }
-            ]
-        });
-
-        // Update color display when the color picker value changes
-        colorPicker.on('color:change', function(color) {
-            document.getElementById('color-value').textContent = color.hexString;
-            document.querySelectorAll('.grid-cell.active').forEach(cell => {
-                cell.style.backgroundColor = color.hexString;
-            });
-        });
-
-        // Initialize grid
-        const gridContainer = document.getElementById('grid-container');
-        for (let i = 0; i < 16; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'grid-cell';
-            cell.addEventListener('click', function() {
-                this.classList.toggle('active');
-                if (this.classList.contains('active')) {
-                    this.style.backgroundColor = colorPicker.color.hexString;
-                } else {
-                    this.style.backgroundColor = '#f9f9f9';
-                }
-            });
-            gridContainer.appendChild(cell);
-        }
-
-        // Save piece functionality
-        document.getElementById('save-piece-button').addEventListener('click', function() {
-            const name = document.getElementById('color-name-input').value;
-            const color = colorPicker.color.hexString;
-            const grid = Array.from(document.querySelectorAll('.grid-cell')).map(cell => 
-                cell.classList.contains('active')
-            );
-            
-            // Create miniature grid preview
-            const gridPreview = document.createElement('div');
-            gridPreview.className = 'library-item-grid';
-            grid.forEach(isActive => {
-                const cell = document.createElement('div');
-                cell.className = 'library-item-cell';
-                if (isActive) {
-                    cell.classList.add('active');
-                    cell.style.backgroundColor = color;
-                }
-                gridPreview.appendChild(cell);
-            });
-
-            // Create new library item
-            const libraryItem = document.createElement('div');
-            libraryItem.className = 'library-item';
-            libraryItem.innerHTML = `
-                <div class="library-item-info">
-                    <span>${name}</span>
-                    <div class="library-item-preview" style="background-color: ${color}"></div>
-                </div>
-            `;
-            libraryItem.insertBefore(gridPreview, libraryItem.firstChild);
-            
-            const controls = document.createElement('div');
-            controls.className = 'library-item-controls';
-            controls.innerHTML = '<button onclick="this.closest(\'.library-item\').remove()">Delete</button>';
-            libraryItem.appendChild(controls);
-            
-            document.getElementById('piece-library').appendChild(libraryItem);
-            
-            // Reset the grid
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                cell.classList.remove('active');
-                cell.style.backgroundColor = '#f9f9f9';
-            });
-            document.getElementById('color-name-input').value = '';
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
