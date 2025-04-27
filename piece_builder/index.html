@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Puzzle Piece Library Creator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
     <style>
         body {
             font-family: sans-serif;
@@ -35,27 +36,42 @@
         }
 
         .grid-cell.active {
-            background-color: blue; /* Default active color */
+            background-color: blue;
         }
 
         #color-picker-container {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
-        #color-wheel {
-            width: 100px;
-            height: 100px;
-            border: 1px solid #ccc;
-            /* You'll need to implement a visual color wheel here */
+        .color-picker-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
         }
 
         #color-name-input {
-            padding: 5px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 200px;
         }
 
         #save-piece-button {
-            padding: 8px 15px;
+            padding: 10px 20px;
             cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        #save-piece-button:hover {
+            background: #45a049;
         }
 
         #piece-library {
@@ -72,12 +88,42 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: #fff;
+            border-radius: 4px;
         }
 
         .library-item-preview {
             width: 20px;
             height: 20px;
             border-radius: 50%;
+            margin: 0 10px;
+        }
+
+        .library-item-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 8px);
+            grid-template-rows: repeat(4, 8px);
+            gap: 1px;
+            background: #f0f0f0;
+            padding: 2px;
+            border-radius: 2px;
+        }
+
+        .library-item-cell {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f9f9f9;
+        }
+
+        .library-item-cell.active {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .library-item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .library-item-controls button {
@@ -89,29 +135,114 @@
 <body>
     <div id="piece-editor">
         <h2>Create New Piece</h2>
-        <div id="grid-container">
-            </div>
+        <div id="grid-container"></div>
         <div id="color-picker-container">
-            <label for="color-name-input">Piece Name:</label>
-            <input type="text" id="color-name-input"><br><br>
-            <label for="color-wheel">Pick Color:</label>
-            <div id="color-wheel" style="background: linear-gradient(to right, red, yellow, green, cyan, blue, magenta, red);">
+            <div class="color-picker-wrapper">
+                <label for="color-name-input">Piece Name:</label>
+                <input type="text" id="color-name-input">
+                <div id="color-wheel"></div>
+                <div id="selected-color" style="margin-top: 10px;">
+                    Selected Color: <span id="color-value">#0000ff</span>
                 </div>
-            <input type="color" id="real-color-picker" style="display: none;">
-            <button id="pick-color-button">Open Color Picker</button>
+            </div>
         </div>
         <button id="save-piece-button">Save Piece</button>
     </div>
-
     <div id="piece-library">
         <h2>Piece Library</h2>
-        <div id="library-list">
-            </div>
-        <button id="export-library-button">Export Library (JSON)</button>
-        <input type="file" id="import-library-input" accept=".json" style="display: none;">
-        <button id="import-library-button">Import Library (JSON)</button>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Initialize the color picker
+        const colorPicker = new iro.ColorPicker('#color-wheel', {
+            width: 200,
+            color: "#0000ff",
+            borderWidth: 1,
+            borderColor: "#ccc",
+            layout: [
+                { 
+                    component: iro.ui.Wheel,
+                    options: {}
+                },
+                {
+                    component: iro.ui.Slider,
+                    options: {
+                        sliderType: 'value'
+                    }
+                }
+            ]
+        });
+
+        // Update color display when the color picker value changes
+        colorPicker.on('color:change', function(color) {
+            document.getElementById('color-value').textContent = color.hexString;
+            document.querySelectorAll('.grid-cell.active').forEach(cell => {
+                cell.style.backgroundColor = color.hexString;
+            });
+        });
+
+        // Initialize grid
+        const gridContainer = document.getElementById('grid-container');
+        for (let i = 0; i < 16; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            cell.addEventListener('click', function() {
+                this.classList.toggle('active');
+                if (this.classList.contains('active')) {
+                    this.style.backgroundColor = colorPicker.color.hexString;
+                } else {
+                    this.style.backgroundColor = '#f9f9f9';
+                }
+            });
+            gridContainer.appendChild(cell);
+        }
+
+        // Save piece functionality
+        document.getElementById('save-piece-button').addEventListener('click', function() {
+            const name = document.getElementById('color-name-input').value;
+            const color = colorPicker.color.hexString;
+            const grid = Array.from(document.querySelectorAll('.grid-cell')).map(cell => 
+                cell.classList.contains('active')
+            );
+            
+            // Create miniature grid preview
+            const gridPreview = document.createElement('div');
+            gridPreview.className = 'library-item-grid';
+            grid.forEach(isActive => {
+                const cell = document.createElement('div');
+                cell.className = 'library-item-cell';
+                if (isActive) {
+                    cell.classList.add('active');
+                    cell.style.backgroundColor = color;
+                }
+                gridPreview.appendChild(cell);
+            });
+
+            // Create new library item
+            const libraryItem = document.createElement('div');
+            libraryItem.className = 'library-item';
+            libraryItem.innerHTML = `
+                <div class="library-item-info">
+                    <span>${name}</span>
+                    <div class="library-item-preview" style="background-color: ${color}"></div>
+                </div>
+            `;
+            libraryItem.insertBefore(gridPreview, libraryItem.firstChild);
+            
+            const controls = document.createElement('div');
+            controls.className = 'library-item-controls';
+            controls.innerHTML = '<button onclick="this.closest(\'.library-item\').remove()">Delete</button>';
+            libraryItem.appendChild(controls);
+            
+            document.getElementById('piece-library').appendChild(libraryItem);
+            
+            // Reset the grid
+            document.querySelectorAll('.grid-cell').forEach(cell => {
+                cell.classList.remove('active');
+                cell.style.backgroundColor = '#f9f9f9';
+            });
+            document.getElementById('color-name-input').value = '';
+        });
+    </script>
 </body>
 </html>
