@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Puzzle Piece Library Creator</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+        }
+
+        #piece-editor {
+            margin-right: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+
+        #grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 30px);
+            grid-template-rows: repeat(4, 30px);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .grid-cell {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #eee;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .grid-cell.active {
+            background-color: blue; /* Default active color */
+        }
+
+        #color-picker-container {
+            margin-bottom: 10px;
+        }
+
+        #color-wheel {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ccc;
+            /* You'll need to implement a visual color wheel here */
+        }
+
+        #color-name-input {
+            padding: 5px;
+        }
+
+        #save-piece-button {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+
+        #piece-library {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 200px;
+            overflow-y: auto;
+        }
+
+        .library-item {
+            border: 1px solid #eee;
+            padding: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .library-item-preview {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .library-item-controls button {
+            margin-left: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="piece-editor">
+        <h2>Create New Piece</h2>
+        <div id="grid-container">
+            </div>
+        <div id="color-picker-container">
+            <label for="color-name-input">Piece Name:</label>
+            <input type="text" id="color-name-input"><br><br>
+            <label for="color-wheel">Pick Color:</label>
+            <div id="color-wheel" style="background: linear-gradient(to right, red, yellow, green, cyan, blue, magenta, red);">
+                </div>
+            <input type="color" id="real-color-picker" style="display: none;">
+            <button id="pick-color-button">Open Color Picker</button>
+        </div>
+        <button id="save-piece-button">Save Piece</button>
+    </div>
+
+    <div id="piece-library">
+        <h2>Piece Library</h2>
+        <div id="library-list">
+            </div>
+        <button id="export-library-button">Export Library (JSON)</button>
+        <input type="file" id="import-library-input" accept=".json" style="display: none;">
+        <button id="import-library-button">Import Library (JSON)</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
