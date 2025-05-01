@@ -248,11 +248,37 @@ def test_rotate(example_piece, yaw, pitch, roll, expected_positions):
     np.testing.assert_allclose(rotated_piece.positions, expected_positions, atol=1e-10)
 
 
-def test_valid_rotations(example_piece):
+def test_align_with_grid_positions_invalid():
+    """Test that invalid grid positions raise ValueError."""
+    invalid_positions = np.array([[0, 0, 0.3], [1, 1, 1]])  # Invalid Z coordinate
+    with pytest.raises(ValueError, match="Z direction"):
+        coordinate_transformations.align_with_grid_positions(invalid_positions)
+
+    invalid_positions = np.array([[0.3, 0, 0], [1, 1, 0]])  # Invalid X coordinate
+    with pytest.raises(ValueError, match="X/Y direction"):
+        coordinate_transformations.align_with_grid_positions(invalid_positions)
+
+
+def test_rotate_invalid():
+    """Test that invalid rotations raise ValueError."""
+    piece = PuzzlePiece(
+        "Test",
+        "rgb(255, 0, 0)",
+        [Location3D(0, 0, 0), Location3D(1, 0, 0)],
+    )
+    # Create a rotation matrix that would result in invalid grid positions
+    invalid_matrix = np.array([[np.cos(0.1), -np.sin(0.1), 0],
+                             [np.sin(0.1), np.cos(0.1), 0],
+                             [0, 0, 1]])
+    with pytest.raises(ValueError):
+        coordinate_transformations.rotate(piece, invalid_matrix)
+
+
+def test_rotated_variants(example_piece):
     """Test that valid rotations are properly generated."""
-    rotations = coordinate_transformations.generate_all_valid_rotations(example_piece)
-    assert len(rotations) == 24
-    for rotation in rotations:
+    variants = coordinate_transformations.generate_all_rotated_variants(example_piece)
+    assert len(variants) == 24
+    for variant in variants:
         assert np.array_equal(
-            rotation.positions[0], Location3D(0, 0, 0)
-        )  # All rotations shall happen around origin, hence no change
+            variant.positions[0], Location3D(0, 0, 0)
+        )

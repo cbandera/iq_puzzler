@@ -1,6 +1,5 @@
-from __future__ import annotations
 import numpy as np
-from typing import List, Optional
+from typing import List
 from .puzzle_piece import PuzzlePiece, Location3D, RotationMatrix
 
 XY_DIST = 1.0
@@ -11,26 +10,29 @@ Z_DIST = 0.5 * np.sqrt(
 
 def align_with_grid_positions(
     positions: np.ndarray, tolerance: float = 1e-10
-) -> Optional[np.ndarray]:
-    """Align positions with the grid if they are valid, otherwise return None.
+) -> np.ndarray:
+    """Align positions with the grid if they are valid, otherwise raise an exception.
 
     Args:
         positions: Array of positions to check and align.
         tolerance: Maximum allowed deviation from integer values.
 
     Returns:
-        Aligned positions if they are valid grid positions, None otherwise.
+        Aligned positions if they are valid grid positions.
+
+    Raises:
+        ValueError: If positions cannot be aligned to the grid.
     """
     z_factors = positions[:, 2] / Z_DIST
     if not np.all(np.abs(z_factors - np.round(z_factors)) < tolerance):
-        return None
+        raise ValueError("Positions cannot be aligned to the grid in Z direction")
 
     even_z = np.mod(z_factors, 2) == 0
     divisors = np.where(even_z[:, np.newaxis], XY_DIST, XY_DIST / 2)
     xy_factors = positions[:, :2] / divisors
 
     if not np.all(np.abs(xy_factors - np.round(xy_factors)) < tolerance):
-        return None
+        raise ValueError("Positions cannot be aligned to the grid in X/Y direction")
 
     aligned_xy = np.round(xy_factors) * divisors
     aligned_z = np.round(z_factors) * Z_DIST
@@ -55,31 +57,27 @@ def translate(piece: PuzzlePiece, offset: Location3D) -> PuzzlePiece:
 
 def rotate(
     piece: PuzzlePiece, rotation_matrix: RotationMatrix
-) -> Optional[PuzzlePiece]:
+) -> PuzzlePiece:
     """Create a new piece by applying a rotation matrix.
 
     Args:
         piece: The piece to rotate.
-        rotation_matrix: 3x3 rotation matrix to apply.
+        rotation_matrix: The rotation matrix to apply.
 
     Returns:
-        A new PuzzlePiece if the rotation results in valid grid positions,
-        None otherwise.
-    """
-    if rotation_matrix.shape != (3, 3):
-        raise ValueError("Rotation matrix must be 3x3")
+        A new piece with rotated positions.
 
-    # Apply rotation
+    Raises:
+        ValueError: If the rotated positions cannot be aligned to the grid.
+    """
+    # Apply rotation matrix to all positions
     rotated_points = piece.positions @ rotation_matrix.T
 
-    # Check if rotation resulted in valid grid positions
+    # Check if rotation resulted in valid grid positions and align them
     aligned_points = align_with_grid_positions(rotated_points)
-    if aligned_points is not None:
-        return PuzzlePiece(
-            piece.name, piece.color, [Location3D(*pos) for pos in aligned_points]
-        )
-    else:
-        return None
+    return PuzzlePiece(
+        piece.name, piece.color, [Location3D(*pos) for pos in aligned_points]
+    )
 
 
 def rotation_matrix_roll(angle_deg: float) -> RotationMatrix:
@@ -168,7 +166,7 @@ def _compute_rotation_matrices() -> List[RotationMatrix]:
 _ROTATION_MATRICES = _compute_rotation_matrices()
 
 
-def generate_all_valid_rotations(piece: PuzzlePiece) -> List[PuzzlePiece]:
+def generate_all_rotated_variants(piece: PuzzlePiece) -> List[PuzzlePiece]:
     """Generate all valid rotations of a piece.
 
     Args:
@@ -177,9 +175,11 @@ def generate_all_valid_rotations(piece: PuzzlePiece) -> List[PuzzlePiece]:
     Returns:
         A list of all valid rotations of the piece.
     """
-    return list(
-        filter(
-            None,
-            [rotate(piece, rotation_matrix) for rotation_matrix in _ROTATION_MATRICES],
-        )
-    )
+    variants = []
+    for rotation_matrix in _ROTATION_MATRICES:
+        try:
+            rotated_piece = rotate(piece, rotation_matrix)
+            variants.append(rotated_piece)
+        except ValueError:
+            continue
+    return variants

@@ -66,24 +66,6 @@ def test_piece_manager_initialization(sample_pieces_json):
     assert len(manager.pieces) == 2
 
 
-def test_get_piece_by_name(sample_pieces_json):
-    """Test getting pieces by their names."""
-    manager = PieceManager(sample_pieces_json)
-
-    # Test we can get pieces by their names
-    red_piece = manager.get_piece_by_name("Red Piece")
-    assert red_piece is not None
-    assert red_piece.name == "Red Piece"
-
-    blue_piece = manager.get_piece_by_name("Blue Piece")
-    assert blue_piece is not None
-    assert blue_piece.name == "Blue Piece"
-
-    # Test getting a piece with a name that doesn't exist
-    nonexistent_piece = manager.get_piece_by_name("Green Piece")
-    assert nonexistent_piece is None
-
-
 def test_piece_variants(sample_pieces_json):
     """Test that pieces have valid variants computed."""
     manager = PieceManager(sample_pieces_json)

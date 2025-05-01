@@ -12,7 +12,7 @@ class PieceManager:
     def __init__(self, json_path: Path):
         """Initialize an empty PieceManager."""
         self._pieces: Dict[str, List[PuzzlePiece]] = {
-            piece.name: coordinate_transformations.generate_all_valid_rotations(piece)
+            piece.name: coordinate_transformations.generate_all_rotated_variants(piece)
             for piece in self._load_shapes_from_json(json_path)
         }
 
@@ -24,7 +24,3 @@ class PieceManager:
     def pieces(self) -> Dict[str, List[PuzzlePiece]]:
         """Get all pieces with their rotations."""
         return self._pieces
-
-    def get_piece_by_name(self, name: str) -> PuzzlePiece:
-        """Get a piece by its name."""
-        return self._pieces[name][0] if name in self._pieces else None
