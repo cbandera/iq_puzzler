@@ -1,8 +1,20 @@
 from __future__ import annotations
 import numpy as np
 from .coordinates import XY_DIST, Z_DIST
-from typing import List
 from .puzzle_piece import PuzzlePiece, Location3D, RotationMatrix
+
+
+def is_rotation_matrix_orthogonal(rotation_matrix: RotationMatrix) -> bool:
+    """Test that generated rotation matrices are proper orthogonal matrices."""
+    # Test orthogonality: R.T @ R = I
+    identity = rotation_matrix.T @ rotation_matrix
+    if not np.allclose(identity, np.eye(3), atol=1e-10):
+        return False
+
+    # Test proper rotation: det(R) = 1
+    if not np.isclose(np.linalg.det(rotation_matrix), 1, atol=1e-10):
+        return False
+    return True
 
 
 def align_with_grid_positions(
@@ -107,69 +119,18 @@ def rotation_matrix_yaw(angle_deg: float) -> RotationMatrix:
 
 
 def rotation_matrix(yaw: float, pitch: float, roll: float) -> RotationMatrix:
-    """Create a rotation matrix from Euler angles in yaw-pitch-roll order."""
-    Rz = rotation_matrix_yaw(yaw)
-    Ry = rotation_matrix_pitch(pitch)
-    Rx = rotation_matrix_roll(roll)
-    return Rz @ Ry @ Rx
-
-
-_VALID_ROTATIONS = [
-    # Flat options: These involve rotations around the Z-axis (yaw) and rotations
-    # of 0° and 180° around the X-axis. No rotation around the Y-axis.
-    (0, 0, 0),
-    (90, 0, 0),
-    (180, 0, 0),
-    (270, 0, 0),
-    (0, 0, 180),
-    (90, 0, 180),
-    (180, 0, 180),
-    (270, 0, 180),
-    # 3D rotations: These involve 4 rotations around the Z-axis (starting at 45°
-    # with 90° increments), combined with two angles around the Y-axis (+/- 45°)
-    # and two angles around the X-axis (+/- 90°).
-    (45, 45, 90),
-    (45, 45, -90),
-    (45, -45, 90),
-    (45, -45, -90),
-    (135, 45, 90),
-    (135, 45, -90),
-    (135, -45, 90),
-    (135, -45, -90),
-    (225, 45, 90),
-    (225, 45, -90),
-    (225, -45, 90),
-    (225, -45, -90),
-    (315, 45, 90),
-    (315, 45, -90),
-    (315, -45, 90),
-    (315, -45, -90),
-]
-
-
-def _compute_rotation_matrices() -> List[RotationMatrix]:
-    """Precompute all possible rotation matrices for 3D positioning."""
-    rotation_matrices = []
-    for yaw, pitch, roll in _VALID_ROTATIONS:
-        R = rotation_matrix(yaw, pitch, roll)
-        rotation_matrices.append(R)
-    return rotation_matrices
-
-
-_ROTATION_MATRICES = _compute_rotation_matrices()
-
-
-def generate_all_rotated_variants(piece: PuzzlePiece) -> List[PuzzlePiece]:
-    """Generate all valid rotations of a piece.
+    """Create a rotation matrix from Euler angles in yaw-pitch-roll order.
 
     Args:
-        piece: The piece to rotate.
+        yaw: Rotation around Z-axis in degrees.
+        pitch: Rotation around Y-axis in degrees.
+        roll: Rotation around X-axis in degrees.
 
     Returns:
-        A list of all valid rotations of the piece.
+        The combined rotation matrix.
     """
-    variants = []
-    for rotation_matrix in _ROTATION_MATRICES:
-        rotated_piece = rotate(piece, rotation_matrix)
-        variants.append(rotated_piece)
-    return variants
+    return (
+        rotation_matrix_yaw(yaw)
+        @ rotation_matrix_pitch(pitch)
+        @ rotation_matrix_roll(roll)
+    )

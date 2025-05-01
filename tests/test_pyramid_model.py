@@ -1,11 +1,13 @@
-import pytest
-from iq_puzzler.pyramid_model import PyramidModel
+"""Tests for the PyramidModel class."""
+
 from iq_puzzler.coordinates import Location3D, XY_DIST, Z_DIST
-
-
-@pytest.fixture
-def pyramid():
-    return PyramidModel()
+from iq_puzzler.coordinate_transformations import (
+    is_rotation_matrix_orthogonal,
+    rotation_matrix,
+    rotate,
+    align_with_grid_positions,
+)
+import numpy as np
 
 
 def test_pyramid_structure_initialization(pyramid):
@@ -129,3 +131,45 @@ def test_layer_structure(pyramid):
         coord for coord, idx in pyramid._coord_to_index.items() if coord.z == 4 * Z_DIST
     }
     assert len(layer_4) == 1
+
+
+def test_valid_rotations(pyramid):
+    """Test that all valid rotations produce orthogonal rotation matrices."""
+    valid_rotations = pyramid.get_valid_rotations()
+    # PyramidModel should have exactly 24 valid rotations
+    assert len(valid_rotations) == 24
+
+    # Each rotation should produce a valid orthogonal rotation matrix
+    for yaw, pitch, roll in valid_rotations:
+        r_matrix = rotation_matrix(yaw, pitch, roll)
+        assert is_rotation_matrix_orthogonal(r_matrix), (
+            f"Rotation matrix for angles (yaw={yaw}, pitch={pitch}, roll={roll}) "
+            "is not a proper orthogonal matrix"
+        )
+
+
+def test_piece_rotations(pyramid, mock_piece):
+    """Test that all valid rotations of a piece result in grid-aligned pieces."""
+    valid_rotations = pyramid.get_valid_rotations()
+    assert len(valid_rotations) == 24
+
+    # Each rotation should produce a valid piece with grid-aligned positions
+    for yaw, pitch, roll in valid_rotations:
+        r_matrix = rotation_matrix(yaw, pitch, roll)
+        rotated_piece = rotate(mock_piece, r_matrix)
+        assert rotated_piece is not None, (
+            f"Rotation failed for angles (yaw={yaw}, pitch={pitch}, roll={roll})"
+        )
+
+        # The rotated piece should already be grid-aligned
+        # Trying to align it again should not change the positions
+        aligned_positions = align_with_grid_positions(rotated_piece.positions)
+        np.testing.assert_allclose(
+            aligned_positions,
+            rotated_piece.positions,
+            atol=1e-10,
+            err_msg=(
+                f"Rotated piece positions for angles (yaw={yaw}, pitch={pitch}, "
+                f"roll={roll}) are not grid-aligned"
+            ),
+        )

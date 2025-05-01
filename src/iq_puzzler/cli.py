@@ -106,7 +106,7 @@ def main(
     else:
         raise ValueError(f"Invalid mode: {mode}")
     # Load piece library
-    piece_manager = PieceLibrary(piece_library)
+    piece_manager = PieceLibrary(piece_library, puzzle_model)
     logger.debug(f"Loaded {len(piece_manager.pieces)} pieces from library")
     for name, variants in piece_manager.pieces.items():
         logger.debug("%s: %d" % (name, len(variants)))

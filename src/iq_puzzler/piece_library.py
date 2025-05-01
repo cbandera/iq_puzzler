@@ -1,26 +1,61 @@
-from __future__ import annotations
+"""Library of puzzle pieces."""
+
 import json
 from pathlib import Path
 from typing import Dict, List
+
 from .puzzle_piece import PuzzlePiece
+from .puzzle_model import PuzzleModel
 from . import coordinate_transformations
 
 
 class PieceLibrary:
-    """A library of puzzle pieces and their possible positions in 3D space."""
+    """Library of puzzle pieces with their rotated variants."""
 
-    def __init__(self, json_path: Path):
-        """Initialize a new PieceLibrary."""
-        self._pieces: Dict[str, List[PuzzlePiece]] = {
-            piece.name: coordinate_transformations.generate_all_rotated_variants(piece)
-            for piece in self._load_shapes_from_json(json_path)
-        }
+    def __init__(self, library_path: Path, model: PuzzleModel):
+        """Load pieces from a JSON file.
 
-    def _load_shapes_from_json(self, json_path: Path) -> List[PuzzlePiece]:
-        pieces_data = json.loads(json_path.read_text())
-        return [PuzzlePiece.from_json(piece_data) for piece_data in pieces_data]
+        Args:
+            library_path: Path to the JSON file containing piece definitions.
+            model: The puzzle model to use for determining valid rotations.
+        """
+        self.pieces: Dict[str, List[PuzzlePiece]] = {}
+        self._model = model
 
-    @property
-    def pieces(self) -> Dict[str, List[PuzzlePiece]]:
-        """Get all pieces with their rotations."""
-        return self._pieces
+        # Load pieces from JSON
+        with open(library_path, "r") as f:
+            piece_data = json.load(f)
+
+        # Create pieces and their rotated variants
+        for piece_info in piece_data:
+            name = piece_info["name"]
+            color = piece_info["color"]
+            if "positions" in piece_info:
+                positions = piece_info["positions"]
+            else:
+                # Convert grid to positions
+                grid = piece_info["grid"]
+                positions = []
+                for i, cell in enumerate(grid):
+                    if cell:
+                        x = i % 4
+                        y = i // 4
+                        positions.append([float(x), float(y), 0.0])
+            piece = PuzzlePiece(name, color, positions)
+            self.pieces[name] = self._generate_variants(piece)
+
+    def _generate_variants(self, piece: PuzzlePiece) -> List[PuzzlePiece]:
+        """Generate all valid rotated variants of a piece.
+
+        Args:
+            piece: The piece to rotate.
+
+        Returns:
+            List of all valid rotations of the piece.
+        """
+        variants = []
+        for angles in self._model.get_valid_rotations():
+            rotation_matrix = coordinate_transformations.rotation_matrix(*angles)
+            rotated_piece = coordinate_transformations.rotate(piece, rotation_matrix)
+            variants.append(rotated_piece)
+        return variants

@@ -1,6 +1,7 @@
 """Interface for puzzle models that map coordinates to indices."""
+
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from abc import ABC, abstractmethod
 from .coordinates import Location3D
 
@@ -62,5 +63,14 @@ class PuzzleModel(ABC):
 
         Returns:
             List of all valid position indices.
+        """
+        pass
+
+    @abstractmethod
+    def get_valid_rotations(self) -> List[Tuple[float, float, float]]:
+        """Get all valid rotation angle combinations.
+
+        Returns:
+            List of tuples (yaw, pitch, roll) in degrees.
         """
         pass

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from .coordinates import Location3D, XY_DIST, Z_DIST
 from .puzzle_model import PuzzleModel
 
@@ -93,3 +93,41 @@ class PyramidModel(PuzzleModel):
             List of all valid position indices.
         """
         return list(self._index_to_coord.keys())
+
+    def get_valid_rotations(self) -> List[Tuple[float, float, float]]:
+        """Get all valid rotation angle combinations.
+
+        Returns:
+            List of tuples (yaw, pitch, roll) in degrees.
+        """
+        return [
+            # Flat options: These involve rotations around the Z-axis (yaw) and rotations
+            # of 0° and 180° around the X-axis. No rotation around the Y-axis.
+            (0, 0, 0),
+            (90, 0, 0),
+            (180, 0, 0),
+            (270, 0, 0),
+            (0, 0, 180),
+            (90, 0, 180),
+            (180, 0, 180),
+            (270, 0, 180),
+            # 3D rotations: These involve 4 rotations around the Z-axis (starting at 45°
+            # with 90° increments), combined with two angles around the Y-axis (+/- 45°)
+            # and two angles around the X-axis (+/- 90°).
+            (45, 45, 90),
+            (45, 45, -90),
+            (45, -45, 90),
+            (45, -45, -90),
+            (135, 45, 90),
+            (135, 45, -90),
+            (135, -45, 90),
+            (135, -45, -90),
+            (225, 45, 90),
+            (225, 45, -90),
+            (225, -45, 90),
+            (225, -45, -90),
+            (315, 45, 90),
+            (315, 45, -90),
+            (315, -45, 90),
+            (315, -45, -90),
+        ]

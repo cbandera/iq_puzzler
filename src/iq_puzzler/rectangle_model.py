@@ -1,5 +1,6 @@
 """Rectangle model implementation."""
-from typing import List, Optional
+
+from typing import List, Optional, Tuple
 
 from .coordinates import Location3D
 from .puzzle_model import PuzzleModel
@@ -26,4 +27,12 @@ class RectangleModel(PuzzleModel):
 
     def get_all_indices(self) -> List[int]:
         """Get all valid indices."""
+        raise NotImplementedError("Rectangle mode not implemented yet")
+
+    def get_valid_rotations(self) -> List[Tuple[float, float, float]]:
+        """Get all valid rotation angle combinations.
+
+        Returns:
+            List of tuples (yaw, pitch, roll) in degrees.
+        """
         raise NotImplementedError("Rectangle mode not implemented yet")

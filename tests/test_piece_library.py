@@ -1,90 +1,34 @@
-import json
-import pytest
+"""Tests for the PieceLibrary class."""
+
 from iq_puzzler.piece_library import PieceLibrary
 
 
-@pytest.fixture
-def sample_pieces_json(tmp_path):
-    """Create a temporary JSON file with sample piece data."""
-    pieces_data = [
-        {
-            "name": "Red Piece",
-            "color": "rgb(255, 0, 0)",
-            "grid": [
-                True,
-                True,
-                False,
-                False,
-                True,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-            ],
-        },
-        {
-            "name": "Blue Piece",
-            "color": "rgb(0, 0, 255)",
-            "grid": [
-                True,
-                False,
-                False,
-                False,
-                True,
-                True,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-            ],
-        },
-    ]
-
-    json_file = tmp_path / "test_pieces.json"
-    with open(json_file, "w") as f:
-        json.dump(pieces_data, f)
-
-    return json_file
-
-
-def test_piece_manager_initialization(sample_pieces_json):
+def test_piece_manager_initialization(mock_piece_library_json, mocked_model):
     """Test that a PieceLibrary loads pieces correctly."""
-    manager = PieceLibrary(sample_pieces_json)
+    manager = PieceLibrary(mock_piece_library_json, mocked_model)
     assert len(manager.pieces) == 2
 
 
-def test_piece_variants(sample_pieces_json):
+def test_piece_variants(mock_piece_library_json, mocked_model, mock_piece):
     """Test that pieces have valid variants computed."""
-    manager = PieceLibrary(sample_pieces_json)
+    manager = PieceLibrary(mock_piece_library_json, mocked_model)
 
-    # Each piece should have multiple valid rotations
-    assert len(manager.pieces["Red Piece"]) > 1
-    assert len(manager.pieces["Blue Piece"]) > 1
+    # Use mock_piece for testing variants
+    variants = manager._generate_variants(mock_piece)
+    # Should have 8 unique rotations for this piece
+    assert len(variants) == 8
+    # Each variant should be unique
+    positions_set = {tuple(map(tuple, v.positions)) for v in variants}
+    assert len(positions_set) == 8
 
 
-def test_unique_variants(sample_pieces_json):
+def test_unique_variants(mock_piece_library_json, mocked_model, mock_piece):
     """Test that piece variants are unique (no duplicates after rotation)."""
-    manager = PieceLibrary(sample_pieces_json)
+    manager = PieceLibrary(mock_piece_library_json, mocked_model)
 
-    # For each piece, check that all its variants are unique
-    for piece_name, variants in manager.pieces.items():
-        # Convert positions to tuples for hashability
-        variant_positions = [
-            tuple(tuple(pos) for pos in variant.positions) for variant in variants
-        ]
-        # Convert to set and back to list to remove duplicates
-        unique_positions = list(set(variant_positions))
-        assert len(unique_positions) == len(variant_positions)
+    # Use mock_piece for testing variants
+    variants = manager._generate_variants(mock_piece)
+    # Convert each variant's positions to a hashable format
+    variant_positions = [tuple(map(tuple, v.positions)) for v in variants]
+    # Check that there are no duplicates
+    assert len(variant_positions) == len(set(variant_positions))
