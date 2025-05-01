@@ -36,7 +36,7 @@ def align_with_grid_positions(
     return np.column_stack((aligned_xy, aligned_z))
 
 
-def translate(piece: PuzzlePiece, offset: Location3D) -> PuzzlePiece:
+def translate(piece: PuzzlePiece, offset: np.ndarray) -> PuzzlePiece:
     """Create a new piece by applying a translation.
 
     Args:
@@ -46,10 +46,8 @@ def translate(piece: PuzzlePiece, offset: Location3D) -> PuzzlePiece:
     Returns:
         A new PuzzlePiece with translated coordinates.
     """
-    translated_points = piece.positions + np.array([offset.x, offset.y, offset.z])
-    return PuzzlePiece(
-        piece.name, piece.color, [Location3D(*pos) for pos in translated_points]
-    )
+    translated_points = piece.positions + offset
+    return PuzzlePiece(piece.name, piece.color, translated_points)
 
 
 def rotate(

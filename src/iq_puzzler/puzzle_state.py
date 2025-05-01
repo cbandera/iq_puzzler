@@ -106,11 +106,11 @@ class PuzzleState:
         """
         return self._occupied_indices.copy()
 
-    def get_placed_pieces(self) -> List[PiecePlacement]:
-        """Get information about all placed pieces.
+    def get_placements(self) -> List[PiecePlacement]:
+        """Get all current piece placements.
 
         Returns:
-            List of PiecePlacement objects for all placed pieces.
+            List of all piece placements.
         """
         return list(self._placements.values())
 
