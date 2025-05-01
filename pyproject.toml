@@ -1,6 +1,6 @@
 [project]
-name = "iq_puzzler"
-version = "0.1.0"
+name = "iq-puzzler"
+version = "0.2.0"
 description = "IQ Puzzler Pro solver with multiple game modes and solving strategies"
 authors = []
 dependencies = [
@@ -22,3 +22,15 @@ build-backend = "hatchling.build"
 
 [project.scripts]
 iq-puzzler = "iq_puzzler.cli:main"
+
+[dependency-groups]
+dev = [
+    "ruff==0.6.4",
+    "pytest>=7.4.3",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.hatch.build]
+packages = ["src/iq_puzzler"]

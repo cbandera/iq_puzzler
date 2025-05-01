@@ -101,7 +101,7 @@ def main(
         logger.debug("%s: %d" % (name, len(variants)))
         for idx, variant in enumerate(variants):
             logger.debug("%s: Variant %d" % (name, idx))
-            logger.debug(variant._positions)
+            logger.debug(variant.positions)
 
     return
     # Initialize puzzle state
