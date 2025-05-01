@@ -8,8 +8,11 @@ from typing import Optional
 import colorama
 from colorama import init as init_colorama
 
-from .piece_manager import PieceManager
-from .puzzle_state import PuzzleState
+from iq_puzzler.piece_library import PieceLibrary
+from iq_puzzler.puzzle_state import PuzzleState
+from iq_puzzler.pyramid_model import PyramidModel
+from iq_puzzler.rectangle_model import RectangleModel
+from iq_puzzler.diamonds_model import DiamondsModel
 
 init_colorama()
 
@@ -51,7 +54,7 @@ def setup_logging(verbose: bool):
 
 
 @click.command()
-@click.option("--verbose", is_flag=True, help="Enable verbose logging")
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose logging")
 @click.option(
     "--initial", type=click.Path(exists=True), help="Initial puzzle state JSON file"
 )
@@ -94,8 +97,16 @@ def main(
 
     logger.info(f"Starting IQ Puzzler solver in {mode} mode using {solver} algorithm")
 
+    if mode == "pyramid":
+        puzzle_model = PyramidModel()
+    elif mode == "rectangle":
+        puzzle_model = RectangleModel()
+    elif mode == "diamonds":
+        puzzle_model = DiamondsModel()
+    else:
+        raise ValueError(f"Invalid mode: {mode}")
     # Load piece library
-    piece_manager = PieceManager(piece_library)
+    piece_manager = PieceLibrary(piece_library)
     logger.debug(f"Loaded {len(piece_manager.pieces)} pieces from library")
     for name, variants in piece_manager.pieces.items():
         logger.debug("%s: %d" % (name, len(variants)))

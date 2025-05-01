@@ -50,9 +50,7 @@ def translate(piece: PuzzlePiece, offset: np.ndarray) -> PuzzlePiece:
     return PuzzlePiece(piece.name, piece.color, translated_points)
 
 
-def rotate(
-    piece: PuzzlePiece, rotation_matrix: RotationMatrix
-) -> PuzzlePiece:
+def rotate(piece: PuzzlePiece, rotation_matrix: RotationMatrix) -> PuzzlePiece:
     """Create a new piece by applying a rotation matrix.
 
     Args:
@@ -172,9 +170,6 @@ def generate_all_rotated_variants(piece: PuzzlePiece) -> List[PuzzlePiece]:
     """
     variants = []
     for rotation_matrix in _ROTATION_MATRICES:
-        try:
-            rotated_piece = rotate(piece, rotation_matrix)
-            variants.append(rotated_piece)
-        except ValueError:
-            continue
+        rotated_piece = rotate(piece, rotation_matrix)
+        variants.append(rotated_piece)
     return variants
