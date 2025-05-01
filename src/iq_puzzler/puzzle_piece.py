@@ -31,12 +31,11 @@ class PuzzlePiece:
         self.positions = np.array(shape, dtype=np.float64)
 
     @classmethod
-    def from_json(cls, json_data: dict, scale: float = 2.0) -> PuzzlePiece:
+    def from_json(cls, json_data: dict) -> PuzzlePiece:
         """Create a piece from JSON data.
 
         Args:
             json_data: Dictionary containing piece data.
-            scale: Scaling factor to apply to coordinates.
 
         Returns:
             A new PuzzlePiece instance.
@@ -45,12 +44,12 @@ class PuzzlePiece:
         color = json_data["color"]
         grid = json_data["grid"]
 
-        # Convert the flat grid array into scaled (x, y) coordinates
+        # Convert the flat grid array into (x, y) coordinates
         # where grid[y * 4 + x] is True
         coordinates = []
         for y in range(4):
             for x in range(4):
                 if grid[y * 4 + x]:
-                    coordinates.append(Location3D(int(x * scale), int(y * scale), 0))
+                    coordinates.append(Location3D(x, y, 0))
 
         return cls(name, color, coordinates)
