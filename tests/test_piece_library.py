@@ -1,6 +1,6 @@
 import json
 import pytest
-from iq_puzzler.piece_manager import PieceManager
+from iq_puzzler.piece_library import PieceLibrary
 
 
 @pytest.fixture
@@ -61,14 +61,14 @@ def sample_pieces_json(tmp_path):
 
 
 def test_piece_manager_initialization(sample_pieces_json):
-    """Test that a PieceManager loads pieces correctly."""
-    manager = PieceManager(sample_pieces_json)
+    """Test that a PieceLibrary loads pieces correctly."""
+    manager = PieceLibrary(sample_pieces_json)
     assert len(manager.pieces) == 2
 
 
 def test_piece_variants(sample_pieces_json):
     """Test that pieces have valid variants computed."""
-    manager = PieceManager(sample_pieces_json)
+    manager = PieceLibrary(sample_pieces_json)
 
     # Each piece should have multiple valid rotations
     assert len(manager.pieces["Red Piece"]) > 1
@@ -77,7 +77,7 @@ def test_piece_variants(sample_pieces_json):
 
 def test_unique_variants(sample_pieces_json):
     """Test that piece variants are unique (no duplicates after rotation)."""
-    manager = PieceManager(sample_pieces_json)
+    manager = PieceLibrary(sample_pieces_json)
 
     # For each piece, check that all its variants are unique
     for piece_name, variants in manager.pieces.items():

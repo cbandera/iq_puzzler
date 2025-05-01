@@ -6,11 +6,11 @@ from .puzzle_piece import PuzzlePiece
 from . import coordinate_transformations
 
 
-class PieceManager:
-    """Manages puzzle pieces and their possible positions in 3D space."""
+class PieceLibrary:
+    """A library of puzzle pieces and their possible positions in 3D space."""
 
     def __init__(self, json_path: Path):
-        """Initialize an empty PieceManager."""
+        """Initialize a new PieceLibrary."""
         self._pieces: Dict[str, List[PuzzlePiece]] = {
             piece.name: coordinate_transformations.generate_all_rotated_variants(piece)
             for piece in self._load_shapes_from_json(json_path)
