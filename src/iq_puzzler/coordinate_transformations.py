@@ -1,11 +1,8 @@
+from __future__ import annotations
 import numpy as np
+from .coordinates import XY_DIST, Z_DIST
 from typing import List
 from .puzzle_piece import PuzzlePiece, Location3D, RotationMatrix
-
-XY_DIST = 1.0
-Z_DIST = 0.5 * np.sqrt(
-    2 * XY_DIST * XY_DIST
-)  # Half the hypothenuse of a right triangle with legs of length XY_DIST
 
 
 def align_with_grid_positions(

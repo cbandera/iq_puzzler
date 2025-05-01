@@ -1,14 +1,7 @@
 from __future__ import annotations
 import numpy as np
-from typing import List, NamedTuple
-
-
-class Location3D(NamedTuple):
-    """A 3D location in the puzzle grid."""
-
-    x: int
-    y: int
-    z: int
+from typing import List
+from .coordinates import Location3D
 
 
 RotationMatrix = np.ndarray

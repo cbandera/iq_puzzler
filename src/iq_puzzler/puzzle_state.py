@@ -1,92 +1,102 @@
 from dataclasses import dataclass
 from typing import Dict, Set, List, Optional
 
+from iq_puzzler import coordinate_transformations
+from .puzzle_model import PuzzleModel
+from .puzzle_piece import PuzzlePiece
+
 
 @dataclass
 class PiecePlacement:
     """Represents the placement of a piece in the puzzle."""
 
-    color: str
-    position_index: int
-    orientation_index: int
+    piece: PuzzlePiece
     occupied_indices: Set[int]  # Set of position indices occupied by this piece
 
 
 class PuzzleState:
     """Manages the current state of the puzzle, tracking placed pieces and their positions."""
 
-    def __init__(self):
+    def __init__(self, model: PuzzleModel):
         """Initialize an empty puzzle state."""
+        self._model: PuzzleModel = model
         self._placements: Dict[
             str, PiecePlacement
-        ] = {}  # Map piece color to its placement
+        ] = {}  # Map piece name to its placement
         self._occupied_indices: Set[int] = set()  # Set of all occupied position indices
 
     def place_piece(
         self,
-        color: str,
+        piece: PuzzlePiece,
         position_index: int,
-        orientation_index: int,
-        occupied_indices: Set[int],
     ) -> bool:
         """Place a piece in the puzzle.
 
         Args:
-            color: The RGB color string of the piece.
+            piece: The piece to place.
             position_index: The integer index of the piece's origin position.
-            orientation_index: The orientation index specifying the piece's rotation.
-            occupied_indices: Set of position indices that this piece will occupy.
 
         Returns:
             bool: True if the piece was placed successfully, False if the placement would
                 cause an overlap or the piece is already placed.
         """
         # Check if piece is already placed
-        if color in self._placements:
+        if piece.name in self._placements:
             return False
 
+        # Move piece to the specified position
+        origin = self._model.index_to_coord(position_index)
+        placed_piece = coordinate_transformations.translate(piece, origin)
+
+        # Check if piece positions are valid
+        if not all(
+            self._model.is_valid_coord(coord) for coord in placed_piece.positions
+        ):
+            return False
+        piece_indices = set(
+            self._model.coord_to_index(coord) for coord in placed_piece.positions
+        )
+
         # Check for overlap with existing pieces
-        if self._occupied_indices.intersection(occupied_indices):
+        if self._occupied_indices.intersection(piece_indices):
             return False
 
         # Add the placement
         placement = PiecePlacement(
-            color=color,
-            position_index=position_index,
-            orientation_index=orientation_index,
-            occupied_indices=occupied_indices,
+            piece=placed_piece,
+            occupied_indices=piece_indices,
         )
-        self._placements[color] = placement
-        self._occupied_indices.update(occupied_indices)
+        self._placements[piece.name] = placement
+        self._occupied_indices.update(piece_indices)
         return True
 
-    def remove_piece(self, color: str) -> bool:
+    def remove_piece(self, name: str) -> bool:
         """Remove a piece from the puzzle.
 
         Args:
-            color: The RGB color string of the piece to remove.
+            name: The name of the piece to remove.
 
         Returns:
             bool: True if the piece was removed, False if it wasn't placed.
         """
-        placement = self._placements.get(color)
+        placement = self._placements.get(name)
         if placement is None:
             return False
 
         self._occupied_indices.difference_update(placement.occupied_indices)
-        del self._placements[color]
+        del self._placements[name]
         return True
 
-    def get_placement(self, color: str) -> Optional[PiecePlacement]:
+    def get_placement(self, name: str) -> Optional[PiecePlacement]:
         """Get the placement information for a piece.
 
         Args:
-            color: The RGB color string of the piece.
+            name: The name of the piece.
 
         Returns:
             The PiecePlacement if the piece is placed, None otherwise.
         """
-        return self._placements.get(color)
+        return self._placements.get(name)
 
     def get_occupied_indices(self) -> Set[int]:
         """Get all position indices that are currently occupied.
@@ -104,13 +114,13 @@ class PuzzleState:
         """
         return list(self._placements.values())
 
-    def is_piece_placed(self, color: str) -> bool:
+    def is_piece_placed(self, name: str) -> bool:
         """Check if a piece is currently placed in the puzzle.
 
         Args:
-            color: The RGB color string of the piece.
+            name: The name string of the piece.
 
         Returns:
             bool: True if the piece is placed, False otherwise.
         """
-        return color in self._placements
+        return name in self._placements

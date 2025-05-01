@@ -1,45 +1,48 @@
-from typing import List, Tuple, Dict, Optional
+from __future__ import annotations
+from typing import List, Dict, Optional
+from .coordinates import Location3D, XY_DIST, Z_DIST
+from .puzzle_model import PuzzleModel
 
 
-class PositionValidator:
+class PyramidModel(PuzzleModel):
     """Manages the mapping between 3D coordinates and position indices within the pyramid."""
 
     def __init__(self):
-        """Initialize the position validator with the pyramid structure."""
+        """Initialize the pyramid model with the pyramid structure."""
         # Define the pyramid structure:
-        # - 5 layers
-        # - Each layer is shifted up by 2 units
-        # - Base layer is a 4x4 grid
+        # - 5 layers with dimensions: 5x5, 4x4, 3x3, 2x2, 1x1 (55 total positions)
+        # - Each layer is shifted up by Z_DIST in z-direction
+        # - Points in each layer are spaced XY_DIST apart in x/y direction
         self._build_pyramid_structure()
 
     def _build_pyramid_structure(self) -> None:
         """Build the pyramid structure and create mappings between indices and coordinates."""
         # Initialize mappings
-        self._index_to_coord: Dict[int, Tuple[float, float, float]] = {}
-        self._coord_to_index: Dict[Tuple[float, float, float], int] = {}
+        self._index_to_coord: Dict[int, Location3D] = {}
+        self._coord_to_index: Dict[Location3D, int] = {}
 
         # Layer dimensions (from bottom to top)
-        layer_dims = [(4, 4), (3, 3), (2, 2), (2, 1), (1, 1)]
+        layer_dims = [(5, 5), (4, 4), (3, 3), (2, 2), (1, 1)]
 
         current_index = 0
         for layer, (rows, cols) in enumerate(layer_dims):
-            z = layer * 2.0  # Each layer is 2 units higher
+            z = layer * Z_DIST  # Each layer is Z_DIST higher
 
             # Calculate offsets to center each layer
-            x_offset = (4 - cols) / 2.0
-            y_offset = (4 - rows) / 2.0
+            x_offset = (5 - cols) * XY_DIST / 2
+            y_offset = (5 - rows) * XY_DIST / 2
 
             for row in range(rows):
                 for col in range(cols):
-                    x = col + x_offset
-                    y = row + y_offset
-                    coord = (x, y, z)
+                    x = col * XY_DIST + x_offset
+                    y = row * XY_DIST + y_offset
+                    coord = Location3D(x, y, z)
 
                     self._index_to_coord[current_index] = coord
                     self._coord_to_index[coord] = current_index
                     current_index += 1
 
-    def coord_to_index(self, coord: Tuple[float, float, float]) -> Optional[int]:
+    def coord_to_index(self, coord: Location3D) -> Optional[int]:
         """Convert 3D coordinates to a position index.
 
         Args:
@@ -48,11 +51,9 @@ class PositionValidator:
         Returns:
             Position index if the coordinates are valid, None otherwise.
         """
-        # Round coordinates to handle floating-point imprecision
-        rounded = tuple(round(c, 6) for c in coord)
-        return self._coord_to_index.get(rounded)
+        return self._coord_to_index.get(coord)
 
-    def index_to_coord(self, index: int) -> Optional[Tuple[float, float, float]]:
+    def index_to_coord(self, index: int) -> Optional[Location3D]:
         """Convert a position index to 3D coordinates.
 
         Args:
@@ -74,7 +75,7 @@ class PositionValidator:
         """
         return index in self._index_to_coord
 
-    def is_valid_coord(self, coord: Tuple[float, float, float]) -> bool:
+    def is_valid_coord(self, coord: Location3D) -> bool:
         """Check if 3D coordinates are within the pyramid.
 
         Args:
@@ -83,9 +84,7 @@ class PositionValidator:
         Returns:
             True if the coordinates are valid, False otherwise.
         """
-        # Round coordinates to handle floating-point imprecision
-        rounded = tuple(round(c, 6) for c in coord)
-        return rounded in self._coord_to_index
+        return coord in self._coord_to_index
 
     def get_all_indices(self) -> List[int]:
         """Get all valid position indices.
