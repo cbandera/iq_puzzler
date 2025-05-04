@@ -1,13 +1,14 @@
-import { useRef, useState, useMemo, useEffect } from 'react'
+import { useEffect, useRef, useMemo, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { PuzzleState } from '@/types/puzzle'
 import * as THREE from 'three'
+import { PuzzleState } from '@/types/puzzle'
+
+const SPHERE_RADIUS = 0.5;
 
 interface PuzzleViewerProps {
   puzzleState: PuzzleState | null;
-  sphereRadius: number;
-  zScale: number;
+  zScale?: number;
 }
 
 function calculateCenterOfMass(puzzleState: PuzzleState, zScale: number) {
@@ -23,7 +24,7 @@ function calculateCenterOfMass(puzzleState: PuzzleState, zScale: number) {
     }),
     { x: 0, y: 0, z: 0 }
   );
-  
+
   return {
     x: sum.x / positions.length,
     y: sum.y / positions.length,
@@ -31,10 +32,10 @@ function calculateCenterOfMass(puzzleState: PuzzleState, zScale: number) {
   };
 }
 
-function Scene({ puzzleState, sphereRadius, zScale, center }: PuzzleViewerProps & { center: THREE.Vector3 }) {
+function Scene({ puzzleState, zScale, center }: PuzzleViewerProps & { center: THREE.Vector3 }) {
   const { camera, scene } = useThree();
   const [resetKey, setResetKey] = useState(0);
-  
+
   // Set up scene orientation
   useEffect(() => {
     // Set z-axis as up for the entire scene
@@ -76,7 +77,7 @@ function Scene({ puzzleState, sphereRadius, zScale, center }: PuzzleViewerProps 
 
   return (
     <>
-      <OrbitControls 
+      <OrbitControls
         key={resetKey}
         target={center}
         makeDefault
@@ -86,17 +87,17 @@ function Scene({ puzzleState, sphereRadius, zScale, center }: PuzzleViewerProps 
       {puzzleState && Object.entries(puzzleState).map(([key, position]) => {
         const material = position.occupied
           ? new THREE.MeshStandardMaterial({
-              color: position.piece_color || '#ffffff',
-              roughness: 0.3,
-              metalness: 0.1,
-            })
+            color: position.piece_color || '#ffffff',
+            roughness: 0.3,
+            metalness: 0.1,
+          })
           : new THREE.MeshStandardMaterial({
-              color: '#808080',
-              transparent: true,
-              opacity: 0.3,
-              roughness: 0.3,
-              metalness: 0.1,
-            });
+            color: '#808080',
+            transparent: true,
+            opacity: 0.3,
+            roughness: 0.3,
+            metalness: 0.1,
+          });
 
         return (
           <mesh
@@ -104,10 +105,10 @@ function Scene({ puzzleState, sphereRadius, zScale, center }: PuzzleViewerProps 
             position={[
               position.coordinate.x,
               position.coordinate.y,
-              position.coordinate.z * zScale
+              position.coordinate.z * (zScale || 1)
             ]}
           >
-            <sphereGeometry args={[sphereRadius, 32, 32]} />
+            <sphereGeometry args={[SPHERE_RADIUS, 32, 32]} />
             <primitive object={material} attach="material" />
           </mesh>
         );
@@ -116,27 +117,133 @@ function Scene({ puzzleState, sphereRadius, zScale, center }: PuzzleViewerProps 
   );
 }
 
-export default function PuzzleViewer({ puzzleState, sphereRadius, zScale }: PuzzleViewerProps) {
+const validatePuzzleData = (data: unknown): data is PuzzleState => {
+  if (!data || typeof data !== 'object') return false;
+  
+  for (const [_, value] of Object.entries(data)) {
+    if (!value || typeof value !== 'object') return false;
+    if (!('occupied' in value) || typeof value.occupied !== 'boolean') return false;
+    if ('piece_color' in value && value.piece_color !== null && typeof value.piece_color !== 'string') return false;
+    if (!('coordinate' in value) || !value.coordinate || typeof value.coordinate !== 'object') return false;
+    
+    const coord = value.coordinate;
+    if (!('x' in coord) || typeof coord.x !== 'number') return false;
+    if (!('y' in coord) || typeof coord.y !== 'number') return false;
+    if (!('z' in coord) || typeof coord.z !== 'number') return false;
+  }
+  
+  return true;
+};
+
+export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps) {
   const center = useMemo(() => {
     if (!puzzleState) return new THREE.Vector3(0, 0, 0);
-    const com = calculateCenterOfMass(puzzleState, zScale);
+    const com = calculateCenterOfMass(puzzleState, zScale || 1);
     return new THREE.Vector3(com.x, com.y, com.z);
   }, [puzzleState, zScale]);
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result;
+      if (typeof content !== 'string') return;
+      
+      try {
+        const data = JSON.parse(content);
+        if (!validatePuzzleData(data)) {
+          alert('Invalid puzzle data format. Please check the file structure.');
+          return;
+        }
+        // Handle the imported data
+        console.log('Imported puzzle data:', data);
+      } catch (error) {
+        alert('Error reading puzzle file. Please ensure it is a valid JSON file.');
+        console.error('Error reading puzzle file:', error);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const resetToDefault = () => {
+    // Add reset functionality here
+    console.log('Resetting to default puzzle state');
+  };
+
+  const [localZScale, setLocalZScale] = useState(zScale || 1);
+
+  useEffect(() => {
+    const storedZScale = localStorage.getItem('zScale');
+    if (storedZScale) {
+      setLocalZScale(parseFloat(storedZScale));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (zScale !== undefined) {
+      setLocalZScale(zScale);
+    }
+  }, [zScale]);
+
   return (
     <div className="w-full h-[600px] relative">
-      <button
-        id="reset-view-button"
-        className="absolute top-4 right-4 px-3 py-1 bg-white/80 hover:bg-white text-gray-800 rounded shadow-md z-10 text-sm font-medium"
-      >
-        Reset View
-      </button>
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label htmlFor="zscale-slider" className="text-sm font-medium">
+              Z-axis Scale: {localZScale}
+            </label>
+            <input
+              id="zscale-slider"
+              type="range"
+              min="1"
+              max="5"
+              step="0.1"
+              value={localZScale}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value);
+                localStorage.setItem('zScale', value.toString());
+                setLocalZScale(value);
+              }}
+              className="w-32"
+            />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <input 
+            type="file" 
+            accept=".json"
+            onChange={handleFileChange}
+            className="hidden"
+            id="puzzle-import"
+          />
+          <button
+            onClick={() => document.getElementById('puzzle-import')?.click()}
+            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Import
+          </button>
+          <button
+            id="reset-view-button"
+            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Reset View
+          </button>
+          <button
+            onClick={resetToDefault}
+            className="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+          >
+            Reset to Default
+          </button>
+        </div>
+      </div>
       <Canvas camera={{ fov: 50 }}>
         {puzzleState && (
           <Scene
             puzzleState={puzzleState}
-            sphereRadius={sphereRadius}
-            zScale={zScale}
+            zScale={localZScale}
             center={center}
           />
         )}
