@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import click
-import json
 import logging
 from pathlib import Path
 from typing import Optional
@@ -114,20 +113,18 @@ def main(
             logger.debug("%s: Variant %d" % (name, idx))
             logger.debug(variant.positions)
 
-    return
     # Initialize puzzle state
-    initial_state = None
-    if initial:
-        with open(initial, "r") as f:
-            initial_state = json.load(f)
-    PuzzleState(initial_state)
+    puzzle_state = PuzzleState(puzzle_model)
 
     # TODO: Implement solver selection and execution
     logger.info("Solving puzzle...")
 
-    # TODO: Save solution if output path is provided
+    # Save solution if output path is provided
     if output:
         logger.info(f"Saving solution to {output}")
+        puzzle_state.export_to_json(output)
+
+    return
 
 
 if __name__ == "__main__":

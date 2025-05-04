@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, Set, List, Optional
+import json
 
 from iq_puzzler import coordinate_transformations
 from .puzzle_model import PuzzleModel
@@ -99,11 +100,7 @@ class PuzzleState:
         return self._placements.get(name)
 
     def get_occupied_indices(self) -> Set[int]:
-        """Get all position indices that are currently occupied.
-
-        Returns:
-            Set of occupied position indices.
-        """
+        """Return the set of all occupied position indices."""
         return self._occupied_indices.copy()
 
     def get_placements(self) -> List[PiecePlacement]:
@@ -124,3 +121,42 @@ class PuzzleState:
             bool: True if the piece is placed, False otherwise.
         """
         return name in self._placements
+
+    def export_to_json(self, filepath: str) -> None:
+        """Export the current puzzle state to a JSON file.
+
+        The export contains all possible position indices, their 3D coordinates,
+        and information about pieces occupying those positions.
+
+        Args:
+            filepath: Path where to save the JSON file
+        """
+        grid_data = {}
+
+        # Export all possible positions
+        for idx in self._model.get_all_indices():
+            coord = self._model.index_to_coord(idx)
+            position_data = {
+                "coordinate": {
+                    "x": float(coord.x),
+                    "y": float(coord.y),
+                    "z": float(coord.z),
+                },
+                "occupied": False,
+                "piece_name": None,
+                "piece_color": None,
+            }
+
+            # Check if position is occupied
+            for name, placement in self._placements.items():
+                if idx in placement.occupied_indices:
+                    position_data["occupied"] = True
+                    position_data["piece_name"] = name
+                    position_data["piece_color"] = placement.piece.color
+                    break
+
+            grid_data[str(idx)] = position_data
+
+        # Write to file
+        with open(filepath, "w") as f:
+            json.dump(grid_data, f, indent=2)
