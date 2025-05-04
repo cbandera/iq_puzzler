@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import Script from 'next/script'
+import { useInitializePieceLibrary } from '@/utils/hooks';
 
 // Extend Window interface to include iro
 declare global {
@@ -12,38 +13,7 @@ declare global {
 export default function PieceLibrary() {
   const initialized = useRef(false);
 
-  useEffect(() => {
-    const initializePieceLibrary = () => {
-      if (initialized.current) return;
-      initialized.current = true;
-
-      // Load default dataset if no local storage data exists
-      const savedLibrary = localStorage.getItem('pieceLibrary')
-      console.log('Current localStorage data:', savedLibrary)
-      if (!savedLibrary) {
-        console.log('Loading default dataset...')
-        fetch('/data/piece_library.json')
-          .then(response => response.json())
-          .then(data => {
-            console.log('Default dataset loaded:', data)
-            localStorage.setItem('pieceLibrary', JSON.stringify(data))
-            // Initialize the piece builder after setting default data
-            const event = new Event('piece-library-ready')
-            window.dispatchEvent(event)
-          })
-          .catch(error => console.error('Error loading default piece library:', error))
-      } else {
-        console.log('Using existing data:', JSON.parse(savedLibrary))
-        // If we already have data, just initialize
-        const event = new Event('piece-library-ready')
-        window.dispatchEvent(event)
-      }
-    }
-
-    return () => {
-      initialized.current = false;
-    }
-  }, [])
+  useInitializePieceLibrary(initialized);
 
   return (
     <div className="flex max-w-[1200px] mx-auto gap-8 p-5">
