@@ -1,6 +1,6 @@
 """Tests for coordinate transformations."""
 
-from iq_puzzler.puzzle_piece import PuzzlePiece, Location3D, RotationMatrix
+from iq_puzzler.puzzle_piece import PuzzlePiece, Location3D
 from iq_puzzler import coordinate_transformations
 import numpy as np
 import pytest

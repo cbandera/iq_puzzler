@@ -127,15 +127,15 @@ def test_export_to_json(mocked_state, mock_piece, tmp_path):
     """Test exporting puzzle state to JSON."""
     # Place a piece
     mocked_state.place_piece(mock_piece, 0)
-    
+
     # Export to temporary file
     output_file = tmp_path / "test_export.json"
     mocked_state.export_to_json(str(output_file))
-    
+
     # Read and verify the exported JSON
     with open(output_file) as f:
         data = json.load(f)
-    
+
     # Verify structure for occupied position
     pos_0 = data["0"]
     assert pos_0["occupied"] is True
@@ -143,7 +143,7 @@ def test_export_to_json(mocked_state, mock_piece, tmp_path):
     assert pos_0["piece_color"] == mock_piece.color
     assert "coordinate" in pos_0
     assert all(isinstance(pos_0["coordinate"][k], float) for k in ["x", "y", "z"])
-    
+
     # Verify structure for unoccupied position
     pos_3 = data["3"]
     assert pos_3["occupied"] is False

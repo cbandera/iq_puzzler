@@ -1,15 +1,15 @@
 [
   {
-    "name": "Light Blue",
-    "color": "rgb(118, 183, 232)",
+    "name": "Blue",
+    "color": "#0000ff",
     "grid": [
-      true,
-      true,
-      true,
-      true,
       false,
       false,
       false,
+      false,
+      false,
+      false,
+      true,
       true,
       false,
       false,
@@ -22,8 +22,8 @@
     ]
   },
   {
-    "name": "Turquise",
-    "color": "rgb(49, 232, 211)",
+    "name": "Dark Green",
+    "color": "#5bb589",
     "grid": [
       false,
       false,
@@ -32,10 +32,120 @@
       false,
       false,
       false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  {
+    "name": "Green",
+    "color": "#cbe600",
+    "grid": [
+      false,
+      false,
+      false,
       false,
       false,
       false,
       true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  {
+    "name": "Light Blue",
+    "color": "#76b7e8",
+    "grid": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  {
+    "name": "Mint Green",
+    "color": "#7dfabe",
+    "grid": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  {
+    "name": "Orange",
+    "color": "#ffa200",
+    "grid": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  {
+    "name": "Pink",
+    "color": "#ed66aa",
+    "grid": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
       true,
       false,
       false,
@@ -45,7 +155,7 @@
   },
   {
     "name": "Purple",
-    "color": "rgb(152, 14, 232)",
+    "color": "#980ee8",
     "grid": [
       false,
       false,
@@ -67,7 +177,7 @@
   },
   {
     "name": "Red",
-    "color": "rgb(232, 0, 8)",
+    "color": "#e80008",
     "grid": [
       false,
       false,
@@ -88,118 +198,8 @@
     ]
   },
   {
-    "name": "Wine Red",
-    "color": "rgb(158, 47, 57)",
-    "grid": [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true,
-      true,
-      false,
-      false,
-      false,
-      true
-    ]
-  },
-  {
-    "name": "Blue",
-    "color": "rgb(0, 0, 255)",
-    "grid": [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true
-    ]
-  },
-  {
-    "name": "Pink",
-    "color": "rgb(237, 102, 170)",
-    "grid": [
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true,
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      true
-    ]
-  },
-  {
-    "name": "Green",
-    "color": "rgb(203, 230, 0)",
-    "grid": [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      true,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      true,
-      true
-    ]
-  },
-  {
-    "name": "Orange",
-    "color": "rgb(255, 162, 0)",
-    "grid": [
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      true,
-      false,
-      false,
-      false,
-      true,
-      true,
-      false,
-      false,
-      true,
-      false
-    ]
-  },
-  {
-    "name": "Dark Green",
-    "color": "rgb(91, 181, 137)",
+    "name": "Turquise",
+    "color": "#31e8d3",
     "grid": [
       false,
       false,
@@ -208,7 +208,7 @@
       false,
       false,
       false,
-      true,
+      false,
       false,
       false,
       true,
@@ -220,8 +220,8 @@
     ]
   },
   {
-    "name": "Mint Green",
-    "color": "rgb(125, 250, 190)",
+    "name": "Wine Red",
+    "color": "#9e2f39",
     "grid": [
       false,
       false,
@@ -229,21 +229,21 @@
       false,
       false,
       false,
-      false,
       true,
       false,
       false,
+      false,
       true,
       true,
       false,
       false,
-      true,
+      false,
       true
     ]
   },
   {
     "name": "Yellow",
-    "color": "rgb(255, 255, 0)",
+    "color": "#ffff00",
     "grid": [
       false,
       false,

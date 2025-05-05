@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import click
 import logging
 from pathlib import Path
@@ -114,6 +113,15 @@ def main(
     puzzle_state = PuzzleState(puzzle_model)
     if initial:
         puzzle_state.load_from_json(initial)
+        # Sanity check initial placements
+        for piece_name, placement in puzzle_state.get_placements().items():
+            if len(placement.piece.positions) != len(
+                piece_manager.pieces[piece_name][0].positions
+            ):
+                logger.error(
+                    f"Initial placement of {piece_name} is invalid: {placement}"
+                )
+                return 1
 
     # Solve puzzle
     logger.info("Solving puzzle...")
@@ -129,7 +137,7 @@ def main(
         if solution:
             logger.info("Solution found!")
         else:
-            logger.info("No solution found")
+            logger.error("No solution found")
     except KeyboardInterrupt:
         logger.warning("Solving interrupted by user")
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Set, List, Optional
+from typing import Dict, Set, Optional
 import json
 
 from iq_puzzler import coordinate_transformations

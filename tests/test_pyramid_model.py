@@ -157,9 +157,9 @@ def test_piece_rotations(pyramid, mock_piece):
     for yaw, pitch, roll in valid_rotations:
         r_matrix = rotation_matrix(yaw, pitch, roll)
         rotated_piece = rotate(mock_piece, r_matrix)
-        assert rotated_piece is not None, (
-            f"Rotation failed for angles (yaw={yaw}, pitch={pitch}, roll={roll})"
-        )
+        assert (
+            rotated_piece is not None
+        ), f"Rotation failed for angles (yaw={yaw}, pitch={pitch}, roll={roll})"
 
         # The rotated piece should already be grid-aligned
         # Trying to align it again should not change the positions

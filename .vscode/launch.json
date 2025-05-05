@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "IQ Puzzler - Pyramid Backtracking",
+            "type": "python",
+            "request": "launch",
+            "module": "iq_puzzler.cli",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--initial", "data/puzzle-state-100.json",
+                "--library", "data/piece_library.json",
+                "--mode", "pyramid",
+                "--solver", "backtracking",
+                "--output", "solution-100.json",
+                "--verbose"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        }
+    ]
+}

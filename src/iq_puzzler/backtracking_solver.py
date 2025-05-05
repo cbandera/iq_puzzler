@@ -1,6 +1,6 @@
 """Backtracking solver for the IQ Puzzler game."""
 
-from typing import List, Optional, Set
+from typing import Optional, Set
 import logging
 from .puzzle_state import PuzzleState
 from .piece_library import PieceLibrary
@@ -77,7 +77,7 @@ class BacktrackingSolver:
                     self.library.pieces[piece_name]
                 ):
                     self.logger.debug(
-                        f"Trying to place {piece_name} variant {variant_idx} at index {index} ({piece_variant.positions})"
+                        f"Trying to place {piece_name} variant {variant_idx} at index {index}"
                     )
 
                     if placement := self.state.place_piece(piece_variant, index):
@@ -103,7 +103,9 @@ class BacktrackingSolver:
                             f"Backtracking: removed {piece_name} variant {variant_idx} from index {index}"
                         )
 
-            self.logger.debug(f"No valid placement found for piece {piece_name}")
+            self.logger.debug(
+                f"No valid placement found for piece {piece_name}, continuing with next index"
+            )
 
         # If we get here, no solution was found
         return False
