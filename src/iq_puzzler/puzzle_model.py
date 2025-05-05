@@ -1,7 +1,7 @@
 """Interface for puzzle models that map coordinates to indices."""
 
 from __future__ import annotations
-from typing import List, Optional, Tuple
+from typing import List, Set, Optional, Tuple
 from abc import ABC, abstractmethod
 from .coordinates import Location3D
 
@@ -58,11 +58,11 @@ class PuzzleModel(ABC):
         pass
 
     @abstractmethod
-    def get_all_indices(self) -> List[int]:
+    def get_all_indices(self) -> Set[int]:
         """Get all valid position indices.
 
         Returns:
-            List of all valid position indices.
+            Set of all valid position indices.
         """
         pass
 

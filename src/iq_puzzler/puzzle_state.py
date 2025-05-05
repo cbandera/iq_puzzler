@@ -29,8 +29,6 @@ class PuzzleState:
             str, PiecePlacement
         ] = {}  # Map piece name to its placement
         self._occupied_indices: Set[int] = set()  # Set of all occupied position indices
-        self._initial_constraints: Dict[str, Set[int]] = {}
-        self._initial_occupied_indices: Set[int] = set()
 
     def place_piece(
         self,
@@ -69,23 +67,6 @@ class PuzzleState:
         # Check for overlap with existing pieces
         if self._occupied_indices.intersection(piece_indices):
             logger.debug(f"Piece {piece.name} overlaps with existing pieces")
-            return None
-
-        # Check if piece matches initial constraints
-        if (
-            piece.name in self._initial_constraints
-            and not piece_indices == self._initial_constraints[piece.name]
-        ):
-            # Piece is part of initial solution but not all positions match
-            logger.debug(f"Piece {piece.name} does not match initial constraints")
-            return None
-        elif piece.name not in self._initial_constraints and piece_indices.intersection(
-            self._initial_occupied_indices
-        ):
-            # Piece is not part of initial solution but some of the occupied positions are.
-            logger.debug(
-                f"Piece {piece.name} doesn't fit with initial occupied indices"
-            )
             return None
 
         # Add the placement
@@ -129,13 +110,13 @@ class PuzzleState:
         """Return the set of all occupied position indices."""
         return self._occupied_indices.copy()
 
-    def get_placements(self) -> List[PiecePlacement]:
+    def get_placements(self) -> Dict[str, PiecePlacement]:
         """Get all current piece placements.
 
         Returns:
-            List of all piece placements.
+            Dict of all piece placements.
         """
-        return list(self._placements.values())
+        return self._placements.copy()
 
     def is_piece_placed(self, name: str) -> bool:
         """Check if a piece is currently placed in the puzzle.
@@ -196,6 +177,10 @@ class PuzzleState:
         with open(filepath, "r") as f:
             data = json.load(f)
 
+        self._placements.clear()
+        self._occupied_indices.clear()
+        initial_constraints: Dict[str, Dict] = {}
+
         # Load placements
         for idx, position_data in data.items():
             idx = int(idx)
@@ -209,7 +194,28 @@ class PuzzleState:
             )
             if position_data["occupied"]:
                 piece_name = position_data["piece_name"]
-                if piece_name not in self._initial_constraints:
-                    self._initial_constraints[piece_name] = set()
-                self._initial_constraints[piece_name].add(idx)
-                self._initial_occupied_indices.add(idx)
+                if piece_name not in initial_constraints:
+                    initial_constraints[piece_name] = {
+                        "color": position_data["piece_color"],
+                        "indices": set(),
+                        "positions": [],
+                    }
+                initial_constraints[piece_name]["indices"].add(idx)
+                initial_constraints[piece_name]["positions"].append(
+                    Location3D(
+                        position_data["coordinate"]["x"],
+                        position_data["coordinate"]["y"],
+                        position_data["coordinate"]["z"],
+                    )
+                )
+
+            for name, constraint in initial_constraints.items():
+                self._placements[name] = PiecePlacement(
+                    piece=PuzzlePiece(
+                        name=name,
+                        color=constraint["color"],
+                        shape=constraint["positions"],
+                    ),
+                    occupied_indices=constraint["indices"],
+                )
+                self._occupied_indices.update(constraint["indices"])

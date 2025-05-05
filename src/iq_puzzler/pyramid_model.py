@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Set
 from .coordinates import Location3D, XY_DIST, Z_DIST
 from .puzzle_model import PuzzleModel
 
@@ -86,13 +86,13 @@ class PyramidModel(PuzzleModel):
         """
         return Location3D(*coord) in self._coord_to_index
 
-    def get_all_indices(self) -> List[int]:
+    def get_all_indices(self) -> Set[int]:
         """Get all valid position indices.
 
         Returns:
-            List of all valid position indices.
+            Set of all valid position indices.
         """
-        return list(self._index_to_coord.keys())
+        return set(self._index_to_coord.keys())
 
     def get_valid_rotations(self) -> List[Tuple[float, float, float]]:
         """Get all valid rotation angle combinations.

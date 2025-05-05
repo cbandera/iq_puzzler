@@ -123,16 +123,20 @@ def main(
         solver = DLXSolver(puzzle_state, piece_manager)
     else:
         raise ValueError(f"Invalid solver: {solver}")
-    solution = solver.solve()
-    if solution:
-        logger.info("Solution found!")
-    else:
-        logger.info("No solution found")
+
+    try:
+        solution = solver.solve()
+        if solution:
+            logger.info("Solution found!")
+        else:
+            logger.info("No solution found")
+    except KeyboardInterrupt:
+        logger.warning("Solving interrupted by user")
 
     # Save solution if output path is provided
     if output:
         logger.info(f"Saving solution to {output}")
-        solution.export_to_json(output)
+        puzzle_state.export_to_json(output)
 
     return
 

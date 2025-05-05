@@ -27,9 +27,14 @@ class BacktrackingSolver:
             A solved puzzle state if a solution is found, None otherwise.
         """
         # Get all valid indices that need to be filled
-        target_indices = set(self.state._model.get_all_indices())
+        target_indices = (
+            self.state._model.get_all_indices() - self.state.get_occupied_indices()
+        )
+
         # Get all available pieces by name
-        available_pieces = list(self.library.pieces.keys())
+        available_pieces = set(self.library.pieces.keys()) - set(
+            self.state.get_placements().keys()
+        )
 
         self.logger.debug("Starting backtracking search")
         self.logger.debug(f"Target indices: {target_indices}")
@@ -44,13 +49,13 @@ class BacktrackingSolver:
             return None
 
     def _solve_recursive(
-        self, remaining_indices: Set[int], available_pieces: List[str]
+        self, remaining_indices: Set[int], available_pieces: Set[str]
     ) -> bool:
         """Recursive helper for the backtracking search.
 
         Args:
             remaining_indices: Set of position indices that still need to be filled.
-            available_pieces: List of piece names that are still available to use.
+            available_pieces: Set of piece names that are still available to use.
 
         Returns:
             True if a solution is found, False otherwise.
@@ -74,20 +79,11 @@ class BacktrackingSolver:
                     self.logger.debug(
                         f"Trying to place {piece_name} variant {variant_idx} at index {index} ({piece_variant.positions})"
                     )
-                    # # Prompt user to continue
-                    # user_input = input(
-                    #     "Press Enter to continue, 'v' to skip variant, 'p' to skip piece: "
-                    # ).lower()
-                    # if user_input == "v":
-                    #     continue
-                    # elif user_input == "p":
-                    #     break
 
                     if placement := self.state.place_piece(piece_variant, index):
                         self.logger.info(
                             f"Successfully placed {piece_name} variant {variant_idx} at index {index}"
                         )
-                        # self.state.export_to_json(f"backtracking_{index}.json")
 
                         # Recursively try to solve the remaining puzzle
                         new_remaining_indices = (
