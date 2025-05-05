@@ -51,7 +51,7 @@ class PyramidModel(PuzzleModel):
         Returns:
             Position index if the coordinates are valid, None otherwise.
         """
-        return self._coord_to_index.get(coord)
+        return self._coord_to_index.get(Location3D(*coord))
 
     def index_to_coord(self, index: int) -> Optional[Location3D]:
         """Convert a position index to 3D coordinates.
@@ -84,7 +84,7 @@ class PyramidModel(PuzzleModel):
         Returns:
             True if the coordinates are valid, False otherwise.
         """
-        return coord in self._coord_to_index
+        return Location3D(*coord) in self._coord_to_index
 
     def get_all_indices(self) -> List[int]:
         """Get all valid position indices.

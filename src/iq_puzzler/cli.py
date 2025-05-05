@@ -12,6 +12,8 @@ from iq_puzzler.puzzle_state import PuzzleState
 from iq_puzzler.pyramid_model import PyramidModel
 from iq_puzzler.rectangle_model import RectangleModel
 from iq_puzzler.diamonds_model import DiamondsModel
+from iq_puzzler.backtracking_solver import BacktrackingSolver
+from iq_puzzler.dlx_solver import DLXSolver
 
 init_colorama()
 
@@ -107,22 +109,30 @@ def main(
     # Load piece library
     piece_manager = PieceLibrary(piece_library, puzzle_model)
     logger.debug(f"Loaded {len(piece_manager.pieces)} pieces from library")
-    for name, variants in piece_manager.pieces.items():
-        logger.debug("%s: %d" % (name, len(variants)))
-        for idx, variant in enumerate(variants):
-            logger.debug("%s: Variant %d" % (name, idx))
-            logger.debug(variant.positions)
 
     # Initialize puzzle state
     puzzle_state = PuzzleState(puzzle_model)
+    if initial:
+        puzzle_state.load_from_json(initial)
 
-    # TODO: Implement solver selection and execution
+    # Solve puzzle
     logger.info("Solving puzzle...")
+    if solver == "backtracking":
+        solver = BacktrackingSolver(puzzle_state, piece_manager)
+    elif solver == "dlx":
+        solver = DLXSolver(puzzle_state, piece_manager)
+    else:
+        raise ValueError(f"Invalid solver: {solver}")
+    solution = solver.solve()
+    if solution:
+        logger.info("Solution found!")
+    else:
+        logger.info("No solution found")
 
     # Save solution if output path is provided
     if output:
         logger.info(f"Saving solution to {output}")
-        puzzle_state.export_to_json(output)
+        solution.export_to_json(output)
 
     return
 

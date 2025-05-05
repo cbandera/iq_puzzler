@@ -40,9 +40,10 @@ class PieceLibrary:
                     positions = []
                     for i, cell in enumerate(grid):
                         if cell:
-                            x = i % 4
-                            y = i // 4
+                            x = 3 - i // 4
+                            y = 3 - i % 4
                             positions.append([float(x), float(y), 0.0])
+                    positions.reverse()
                 piece = PuzzlePiece(name, color, positions)
                 self.add_piece(piece)
 

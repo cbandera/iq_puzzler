@@ -3,8 +3,12 @@ from typing import Dict, Set, List, Optional
 import json
 
 from iq_puzzler import coordinate_transformations
-from .puzzle_model import PuzzleModel
-from .puzzle_piece import PuzzlePiece
+from iq_puzzler.puzzle_model import PuzzleModel
+from iq_puzzler.puzzle_piece import PuzzlePiece
+from iq_puzzler.coordinates import Location3D
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -25,12 +29,14 @@ class PuzzleState:
             str, PiecePlacement
         ] = {}  # Map piece name to its placement
         self._occupied_indices: Set[int] = set()  # Set of all occupied position indices
+        self._initial_constraints: Dict[str, Set[int]] = {}
+        self._initial_occupied_indices: Set[int] = set()
 
     def place_piece(
         self,
         piece: PuzzlePiece,
         position_index: int,
-    ) -> bool:
+    ) -> Optional[PiecePlacement]:
         """Place a piece in the puzzle.
 
         Args:
@@ -43,7 +49,8 @@ class PuzzleState:
         """
         # Check if piece is already placed
         if piece.name in self._placements:
-            return False
+            logger.debug(f"Piece {piece.name} is already placed")
+            return None
 
         # Move piece to the specified position
         origin = self._model.index_to_coord(position_index)
@@ -53,14 +60,33 @@ class PuzzleState:
         if not all(
             self._model.is_valid_coord(coord) for coord in placed_piece.positions
         ):
-            return False
+            logger.debug(f"Piece {piece.name} does not have valid coordinates")
+            return None
         piece_indices = set(
             self._model.coord_to_index(coord) for coord in placed_piece.positions
         )
 
         # Check for overlap with existing pieces
         if self._occupied_indices.intersection(piece_indices):
-            return False
+            logger.debug(f"Piece {piece.name} overlaps with existing pieces")
+            return None
+
+        # Check if piece matches initial constraints
+        if (
+            piece.name in self._initial_constraints
+            and not piece_indices == self._initial_constraints[piece.name]
+        ):
+            # Piece is part of initial solution but not all positions match
+            logger.debug(f"Piece {piece.name} does not match initial constraints")
+            return None
+        elif piece.name not in self._initial_constraints and piece_indices.intersection(
+            self._initial_occupied_indices
+        ):
+            # Piece is not part of initial solution but some of the occupied positions are.
+            logger.debug(
+                f"Piece {piece.name} doesn't fit with initial occupied indices"
+            )
+            return None
 
         # Add the placement
         placement = PiecePlacement(
@@ -69,7 +95,7 @@ class PuzzleState:
         )
         self._placements[piece.name] = placement
         self._occupied_indices.update(piece_indices)
-        return True
+        return placement
 
     def remove_piece(self, name: str) -> bool:
         """Remove a piece from the puzzle.
@@ -160,3 +186,30 @@ class PuzzleState:
         # Write to file
         with open(filepath, "w") as f:
             json.dump(grid_data, f, indent=2)
+
+    def load_from_json(self, filepath: str) -> None:
+        """Load the puzzle state from a JSON file.
+
+        Args:
+            filepath: Path to the JSON file containing the puzzle state.
+        """
+        with open(filepath, "r") as f:
+            data = json.load(f)
+
+        # Load placements
+        for idx, position_data in data.items():
+            idx = int(idx)
+            assert idx in self._model.get_all_indices()
+            assert self._model.is_valid_coord(
+                Location3D(
+                    position_data["coordinate"]["x"],
+                    position_data["coordinate"]["y"],
+                    position_data["coordinate"]["z"],
+                )
+            )
+            if position_data["occupied"]:
+                piece_name = position_data["piece_name"]
+                if piece_name not in self._initial_constraints:
+                    self._initial_constraints[piece_name] = set()
+                self._initial_constraints[piece_name].add(idx)
+                self._initial_occupied_indices.add(idx)
