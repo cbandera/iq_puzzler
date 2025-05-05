@@ -12,8 +12,18 @@ declare global {
 
 export default function PieceLibrary() {
   const initialized = useRef(false);
+  const iroLoaded = useRef(false);
 
   useInitializePieceLibrary(initialized);
+
+  // Function to initialize the piece builder when both scripts are ready
+  const initializePieceBuilder = () => {
+    if (iroLoaded.current) {
+      console.log('Initializing piece library...');
+      const event = new Event('piece-library-ready');
+      window.dispatchEvent(event);
+    }
+  };
 
   return (
     <div className="flex max-w-[1200px] mx-auto gap-8 p-5">
@@ -90,24 +100,31 @@ export default function PieceLibrary() {
         <div className="library-items border rounded-lg p-4 min-h-[700px] bg-gray-50 w-full"></div>
       </div>
 
+      {/* Load iro.js first and ensure it's fully loaded before proceeding */}
       <Script 
         src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"
+        strategy="beforeInteractive"
         onLoad={() => {
           console.log('iro.js loaded');
           if (window.iro) {
             console.log('iro is available in window');
+            iroLoaded.current = true;
+            // Wait for a moment to ensure iro is fully initialized
+            setTimeout(() => {
+              initializePieceBuilder();
+            }, 200);
+          } else {
+            console.error('iro failed to load properly');
           }
         }}
       />
+      
+      {/* Load piece-builder.js after iro.js */}
       <Script 
         src="/piece-builder.js"
+        strategy="afterInteractive"
         onLoad={() => {
           console.log('piece-builder.js loaded');
-          setTimeout(() => {
-            console.log('Initializing piece library...');
-            const event = new Event('piece-library-ready');
-            window.dispatchEvent(event);
-          }, 100);
         }}
       />
     </div>
