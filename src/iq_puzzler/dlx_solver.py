@@ -250,7 +250,7 @@ class DLXSolver:
         self.solution = []
 
         # Get all valid indices that need to be filled
-        target_indices = (
+        available_indices = (
             self.state.get_all_indices() - self.state.get_occupied_indices()
         )
 
@@ -260,11 +260,13 @@ class DLXSolver:
         )
 
         self.logger.info("Starting DLX search")
-        self.logger.info(f"Target indices: {len(target_indices)} positions to fill")
+        self.logger.info(
+            f"Available indices: {len(available_indices)} positions to fill"
+        )
         self.logger.info(f"Available pieces: {len(available_pieces)} pieces to place")
 
         # Build the exact cover matrix
-        self._build_matrix(target_indices, available_pieces)
+        self._build_matrix(available_indices, available_pieces)
 
         # Solve using Algorithm X
         if self._solve_dlx():
@@ -276,7 +278,7 @@ class DLXSolver:
             return None
 
     def _build_matrix(
-        self, target_indices: Set[int], available_pieces: Set[str]
+        self, available_indices: Set[int], available_pieces: Set[str]
     ) -> None:
         """Build the exact cover matrix for the puzzle.
 
@@ -286,7 +288,7 @@ class DLXSolver:
         - One row for each possible placement of each piece
 
         Args:
-            target_indices: Set of position indices that need to be filled.
+            available_indices: Set of position indices that need to be filled.
             available_pieces: Set of piece names that are available to use.
         """
         self._log_debug(1, "Building exact cover matrix...")
@@ -294,12 +296,12 @@ class DLXSolver:
         # Create column names
         column_names = []
 
-        # Position constraint columns (one for each position)
-        for idx in sorted(self.state.get_all_indices()):
+        # Position constraint columns (one for each position that needs to be filled)
+        for idx in sorted(available_indices):
             column_names.append(f"pos_{idx}")
 
-        # Piece constraint columns (one for each piece)
-        for piece_name in sorted(self.library.pieces.keys()):
+        # Piece constraint columns (one for each available piece)
+        for piece_name in sorted(available_pieces):
             column_names.append(f"piece_{piece_name}")
 
         # Create the matrix
@@ -317,11 +319,11 @@ class DLXSolver:
             )
 
             # For each variant of the piece
-            for variant_idx, piece_variant in enumerate(piece_variants):
-                # For each possible starting position
-                for start_idx in sorted(self.state.get_all_indices()):
+            for piece_variant in piece_variants:
+                # For each possible starting position (only consider available positions)
+                for position_idx in sorted(available_indices):
                     # Try to place the piece at this position
-                    origin = self.state._model.index_to_coord(start_idx)
+                    origin = self.state._model.index_to_coord(position_idx)
                     placed_piece = coordinate_transformations.translate(
                         piece_variant, origin
                     )
@@ -347,8 +349,8 @@ class DLXSolver:
                     if not valid_placement:
                         continue
 
-                    # Skip if any position is already occupied
-                    if self.state.get_occupied_indices().intersection(occupied_indices):
+                    # Skip if any position is not in the available indices
+                    if not occupied_indices.issubset(available_indices):
                         continue
 
                     # Create a row for this placement
@@ -364,10 +366,9 @@ class DLXSolver:
                     # Add the row to the matrix with placement data
                     placement_data = {
                         "piece_name": piece_name,
-                        "variant_idx": variant_idx,
-                        "start_idx": start_idx,
+                        "start_idx": position_idx,
                         "occupied_indices": occupied_indices,
-                        "piece": placed_piece,
+                        "piece": piece_variant,
                     }
                     self.matrix.add_row(cols, placement_data)
                     row_count += 1
@@ -391,7 +392,7 @@ class DLXSolver:
             return True
 
         self.iterations += 1
-        if self.iterations % 10000 == 0:
+        if self.iterations % 10 == 0:
             self._log_debug(1, f"Iterations: {self.iterations}")
 
         # Choose a column to cover (S heuristic: column with fewest 1s)
@@ -448,11 +449,13 @@ class DLXSolver:
         for row_data in self.solution:
             piece_name = row_data["piece_name"]
             piece = row_data["piece"]
-            start_idx = row_data["start_idx"]
+            position_idx = row_data["start_idx"]
 
-            self._log_debug(2, f"Placing {piece_name} at index {start_idx}")
+            self._log_debug(2, f"Placing {piece_name} at index {position_idx}")
 
             # Place the piece in the puzzle state
-            placement = self.state.place_piece(piece, start_idx)
+            placement = self.state.place_piece(piece, position_idx)
             if not placement:
-                self.logger.error(f"Failed to place {piece_name} at index {start_idx}")
+                self.logger.error(
+                    f"Failed to place {piece_name} at index {position_idx}"
+                )
