@@ -129,6 +129,10 @@ class PuzzleState:
         """
         return name in self._placements
 
+    def get_all_indices(self) -> Set[int]:
+        """Return the set of all possible position indices."""
+        return self._model.get_all_indices()
+
     def export_to_json(self, filepath: str) -> None:
         """Export the current puzzle state to a JSON file.
 
