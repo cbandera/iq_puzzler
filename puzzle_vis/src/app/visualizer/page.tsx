@@ -412,10 +412,10 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
         />
       </Canvas>
 
-      {/* Selection dialog */}
+      {/* Selection dialog - Redesigned to fit all options without scrolling */}
       {selectedPosition && modifiedPuzzleState && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow-lg w-72">
-          <div className="flex justify-between items-center mb-4">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow-lg w-96">
+          <div className="flex justify-between items-center mb-2">
             <h3 className="font-bold">Position {selectedPosition}</h3>
             <button
               onClick={() => setSelectedPosition(null)}
@@ -425,28 +425,28 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
             </button>
           </div>
 
-          <div className="mb-4">
-            <h4 className="font-medium mb-2">Select Piece:</h4>
-            <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
+          <div className="mb-2">
+            <h4 className="font-medium mb-1">Select Piece:</h4>
+            <div className="grid grid-cols-2 gap-2">
               <div
-                className="flex items-center p-2 border rounded cursor-pointer hover:bg-gray-100"
+                className="flex items-center p-1 border rounded cursor-pointer hover:bg-gray-100"
                 onClick={() => updatePositionProperties(null, null)}
               >
-                <div className="w-6 h-6 mr-2 bg-gray-300 opacity-50 rounded"></div>
-                <span>Unoccupied</span>
+                <div className="w-5 h-5 mr-2 bg-gray-300 opacity-50 rounded"></div>
+                <span className="text-sm">Unoccupied</span>
               </div>
 
               {pieceLibrary.map((piece, index) => (
                 <div
                   key={index}
-                  className="flex items-center p-2 border rounded cursor-pointer hover:bg-gray-100"
+                  className="flex items-center p-1 border rounded cursor-pointer hover:bg-gray-100"
                   onClick={() => updatePositionProperties(piece.name, piece.color)}
                 >
                   <div
-                    className="w-6 h-6 mr-2 rounded"
+                    className="w-5 h-5 mr-2 rounded"
                     style={{ backgroundColor: piece.color }}
                   ></div>
-                  <span>{piece.name}</span>
+                  <span className="text-sm">{piece.name}</span>
                 </div>
               ))}
             </div>
