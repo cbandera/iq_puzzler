@@ -317,13 +317,14 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
     console.log('Reset to default puzzle state');
   };
 
-  // Function to solve the puzzle using the Python application
+  // Function to solve the puzzle using the Python application with streaming output
   const solvePuzzle = async () => {
     if (!modifiedPuzzleState) return;
     
     try {
       setIsSolving(true);
       setSolverOutput('');
+      setShowSolverOutput(true); // Show the dialog immediately
       
       // Generate unique filenames for this solving session
       const timestamp = new Date().getTime();
@@ -333,24 +334,72 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
       // Export the current puzzle state to a temporary file
       await exportPuzzleStateToFile(puzzleStateFilename);
       
-      // Export the piece library if needed (we'll use the existing one for now)
-      // This step is optional as we're using the default library
+      // Call the Python application with streaming output
+      const response = await fetch('/api/solve-puzzle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          puzzleStateFile: puzzleStateFilename,
+          libraryFile: 'piece_library.json', // Using the default library
+          solutionFile: solutionFilename
+        })
+      });
       
-      // Call the Python application
-      const result = await callPythonSolver(puzzleStateFilename, solutionFilename);
+      if (!response.ok) {
+        throw new Error(`Failed to start solver: ${response.statusText}`);
+      }
       
-      // Show the output
-      setSolverOutput(result);
-      setShowSolverOutput(true);
+      // Process the streaming response
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('Failed to get response reader');
+      }
       
-      // If successful, import the solution
-      if (result.includes('Solution found!')) {
-        await importSolution(solutionFilename);
+      let solutionFound = false;
+      
+      // Read the stream
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        // Convert the chunk to text
+        const chunk = new TextDecoder().decode(value);
+        
+        // Process each event in the chunk
+        const events = chunk.split('\n\n').filter(Boolean);
+        for (const event of events) {
+          if (event.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(event.slice(5));
+              
+              // Handle output data
+              if (data.output) {
+                setSolverOutput(prev => prev + data.output);
+                
+                // Check if solution was found
+                if (data.output.includes('Solution found!')) {
+                  solutionFound = true;
+                }
+              }
+              
+              // Handle completion
+              if (data.completed && data.success) {
+                console.log('Solver completed successfully');
+                if (solutionFound) {
+                  await importSolution(solutionFilename);
+                }
+              }
+            } catch (e) {
+              console.error('Error parsing event data:', e);
+            }
+          }
+        }
       }
     } catch (error) {
       console.error('Error solving puzzle:', error);
-      setSolverOutput(`Error: ${error instanceof Error ? error.message : String(error)}`);
-      setShowSolverOutput(true);
+      setSolverOutput(prev => prev + `\nError: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsSolving(false);
     }
@@ -545,8 +594,14 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
           <button
             onClick={solvePuzzle}
             disabled={isSolving}
-            className={`px-3 py-1 text-sm ${isSolving ? 'bg-gray-400' : 'bg-purple-600 hover:bg-purple-700'} text-white rounded`}
+            className={`px-3 py-1 text-sm ${isSolving ? 'bg-gray-400' : 'bg-purple-600 hover:bg-purple-700'} text-white rounded flex items-center justify-center gap-2`}
           >
+            {isSolving && (
+              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            )}
             {isSolving ? 'Solving...' : 'Solve'}
           </button>
         </div>
@@ -563,10 +618,10 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
         />
       </Canvas>
       
-      {/* Solver output dialog */}
+      {/* Solver output dialog - Wider with smaller text for better readability */}
       {showSolverOutput && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-[600px] max-h-[80vh] overflow-auto">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-[800px] max-h-[80vh] overflow-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">
                 Solver Output
@@ -579,7 +634,7 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
               </button>
             </div>
             
-            <pre className="bg-gray-100 p-4 rounded overflow-auto whitespace-pre-wrap text-sm font-mono">
+            <pre className="bg-gray-100 p-4 rounded overflow-auto whitespace-pre-wrap text-xs font-mono leading-relaxed">
               {solverOutput || 'No output available'}
             </pre>
             

@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { spawn } from 'child_process';
 import { join } from 'path';
 
-const execPromise = promisify(exec);
-
+// This is a streaming API endpoint
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
@@ -22,24 +20,81 @@ export async function POST(request: NextRequest) {
     const libraryPath = join('data', libraryFile); // Using the library in the main project
     const solutionPath = join('puzzle_vis', 'public', 'data', solutionFile);
     
-    // Build the command with the correct paths
-    const command = `iq-puzzler --initial ${puzzleStatePath} --library ${libraryPath} --mode pyramid --solver dlx --output ${solutionPath}`;
+    // Build the command arguments
+    const args = [
+      '--initial', puzzleStatePath,
+      '--library', libraryPath,
+      '--mode', 'pyramid',
+      '--solver', 'dlx',
+      '--output', solutionPath
+    ];
     
-    console.log('Executing command:', command);
+    console.log('Executing command: iq-puzzler', args.join(' '));
     
-    // Execute the command with the correct working directory
-    const { stdout, stderr } = await execPromise(command, {
-      cwd: '/home/claudio/iq_puzzler' // Set the working directory to the main project root
+    // Create a new ReadableStream to stream the output
+    const stream = new ReadableStream({
+      async start(controller) {
+        let outputBuffer = '';
+        let isCompleted = false;
+        let hasError = false;
+        
+        // Spawn the process
+        const process = spawn('iq-puzzler', args, {
+          cwd: '/home/claudio/iq_puzzler' // Set the working directory to the main project root
+        });
+        
+        // Handle stdout data
+        process.stdout.on('data', (data) => {
+          const text = data.toString();
+          outputBuffer += text;
+          controller.enqueue(`data: ${JSON.stringify({ output: text })}\n\n`);
+        });
+        
+        // Handle stderr data
+        process.stderr.on('data', (data) => {
+          const text = data.toString();
+          outputBuffer += text;
+          controller.enqueue(`data: ${JSON.stringify({ output: text, error: true })}\n\n`);
+        });
+        
+        // Handle process completion
+        process.on('close', (code) => {
+          isCompleted = true;
+          hasError = code !== 0;
+          
+          // Send completion event
+          controller.enqueue(`data: ${JSON.stringify({ 
+            completed: true, 
+            success: !hasError,
+            solutionFile,
+            exitCode: code
+          })}\n\n`);
+          
+          controller.close();
+        });
+        
+        // Handle process errors
+        process.on('error', (err) => {
+          console.error('Process error:', err);
+          hasError = true;
+          
+          controller.enqueue(`data: ${JSON.stringify({ 
+            error: true, 
+            message: err.message 
+          })}\n\n`);
+          
+          controller.close();
+        });
+      }
     });
     
-    if (stderr) {
-      console.error('Solver error:', stderr);
-    }
-    
-    return NextResponse.json({ 
-      success: true, 
-      output: stdout || stderr,
-      solutionFile
+    // Return the stream as a Server-Sent Events response
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+      }
     });
   } catch (error) {
     console.error('Error running solver:', error);
