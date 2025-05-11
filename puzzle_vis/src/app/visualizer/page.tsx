@@ -89,12 +89,12 @@ function Scene({
   puzzleState,
   zScale,
   center,
-  selectedPosition,
-  setSelectedPosition
+  selectedPositions,
+  setSelectedPositions
 }: PuzzleViewerProps & {
   center: THREE.Vector3,
-  selectedPosition: string | null,
-  setSelectedPosition: (position: string | null) => void
+  selectedPositions: string[],
+  setSelectedPositions: (positions: string[]) => void
 }) {
   const { camera, scene } = useThree();
   const [resetKey, setResetKey] = useState(0);
@@ -142,13 +142,25 @@ function Scene({
     };
   }, [camera, center]);
 
-  // Handle sphere click
+  // Handle sphere click with multi-select support
   const handleSphereClick = (event: ThreeEvent<MouseEvent>, positionKey: string) => {
-    // Use ThreeEvent from THREE.js (typed as any here for simplicity)
+    // Use ThreeEvent from THREE.js
     if (event.stopPropagation) {
       event.stopPropagation();
     }
-    setSelectedPosition(positionKey);
+    
+    // Check if shift key is pressed for multi-select
+    if (event.nativeEvent.shiftKey) {
+      // If already selected, remove it; otherwise add it
+      if (selectedPositions.includes(positionKey)) {
+        setSelectedPositions(selectedPositions.filter(pos => pos !== positionKey));
+      } else {
+        setSelectedPositions([...selectedPositions, positionKey]);
+      }
+    } else {
+      // Normal click (no shift) - select only this position
+      setSelectedPositions([positionKey]);
+    }
   };
 
   return (
@@ -170,7 +182,7 @@ function Scene({
 
       {/* Spheres for puzzle positions */}
       {puzzleState && Object.entries(puzzleState).map(([key, position]) => {
-        const isSelected = key === selectedPosition;
+        const isSelected = selectedPositions.includes(key);
 
         // Enhanced material settings for more vibrant colors
         const material = position.occupied
@@ -231,7 +243,8 @@ function Scene({
 
 export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps) {
   const [pieceLibrary, setPieceLibrary] = useState<PieceLibraryItem[]>([]);
-  const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
+  // Replace single selection with array of selections
+  const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
   const [modifiedPuzzleState, setModifiedPuzzleState] = useState<PuzzleState | null>(puzzleState);
 
   // Fetch piece library on component mount
@@ -290,7 +303,7 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
     if (puzzleState) {
       setModifiedPuzzleState({ ...puzzleState });
     }
-    setSelectedPosition(null);
+    setSelectedPositions([]);
     console.log('Reset to default puzzle state');
   };
 
@@ -309,22 +322,28 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
     }
   }, [zScale]);
 
-  // Update position properties
+  // Function to update position properties for all selected positions
   const updatePositionProperties = (pieceName: string | null, pieceColor: string | null) => {
-    if (!selectedPosition || !modifiedPuzzleState) return;
-
-    const newState = { ...modifiedPuzzleState };
-    newState[selectedPosition] = {
-      ...newState[selectedPosition],
-      occupied: pieceName !== null,
-      piece_name: pieceName,
-      piece_color: pieceColor
-    };
-
-    setModifiedPuzzleState(newState);
+    if (!modifiedPuzzleState || selectedPositions.length === 0) return;
 
     // Close the dialog once a piece/color is selected
-    setSelectedPosition(null);
+    setSelectedPositions([]);
+
+    // Clone the current state
+    const newState = { ...modifiedPuzzleState };
+
+    // Update all selected positions with the same piece/color
+    selectedPositions.forEach(posKey => {
+      newState[posKey] = {
+        ...newState[posKey],
+        occupied: pieceName !== null,
+        piece_name: pieceName,
+        piece_color: pieceColor
+      };
+    });
+
+    // Update the state
+    setModifiedPuzzleState(newState);
   };
 
   // Export puzzle state to JSON file
@@ -407,18 +426,22 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
           puzzleState={modifiedPuzzleState}
           zScale={localZScale}
           center={center}
-          selectedPosition={selectedPosition}
-          setSelectedPosition={setSelectedPosition}
+          selectedPositions={selectedPositions}
+          setSelectedPositions={setSelectedPositions}
         />
       </Canvas>
 
       {/* Selection dialog - Redesigned to fit all options without scrolling */}
-      {selectedPosition && modifiedPuzzleState && (
+      {selectedPositions.length > 0 && modifiedPuzzleState && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow-lg w-96">
           <div className="flex justify-between items-center mb-2">
-            <h3 className="font-bold">Position {selectedPosition}</h3>
+            <h3 className="font-bold">
+              {selectedPositions.length === 1 
+                ? `Position ${selectedPositions[0]}` 
+                : `${selectedPositions.length} Positions Selected`}
+            </h3>
             <button
-              onClick={() => setSelectedPosition(null)}
+              onClick={() => setSelectedPositions([])}
               className="text-gray-500 hover:text-gray-700"
             >
               ✕
