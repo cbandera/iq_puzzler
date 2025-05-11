@@ -251,6 +251,11 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
   // Replace single selection with array of selections
   const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
   const [modifiedPuzzleState, setModifiedPuzzleState] = useState<PuzzleState | null>(puzzleState);
+  
+  // State for the solver
+  const [isSolving, setIsSolving] = useState(false);
+  const [solverOutput, setSolverOutput] = useState<string>('');
+  const [showSolverOutput, setShowSolverOutput] = useState(false);
 
   // Fetch piece library on component mount
   useEffect(() => {
@@ -312,6 +317,45 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
     console.log('Reset to default puzzle state');
   };
 
+  // Function to solve the puzzle using the Python application
+  const solvePuzzle = async () => {
+    if (!modifiedPuzzleState) return;
+    
+    try {
+      setIsSolving(true);
+      setSolverOutput('');
+      
+      // Generate unique filenames for this solving session
+      const timestamp = new Date().getTime();
+      const puzzleStateFilename = `puzzle-state-${timestamp}.json`;
+      const solutionFilename = `solution-${timestamp}.json`;
+      
+      // Export the current puzzle state to a temporary file
+      await exportPuzzleStateToFile(puzzleStateFilename);
+      
+      // Export the piece library if needed (we'll use the existing one for now)
+      // This step is optional as we're using the default library
+      
+      // Call the Python application
+      const result = await callPythonSolver(puzzleStateFilename, solutionFilename);
+      
+      // Show the output
+      setSolverOutput(result);
+      setShowSolverOutput(true);
+      
+      // If successful, import the solution
+      if (result.includes('Solution found!')) {
+        await importSolution(solutionFilename);
+      }
+    } catch (error) {
+      console.error('Error solving puzzle:', error);
+      setSolverOutput(`Error: ${error instanceof Error ? error.message : String(error)}`);
+      setShowSolverOutput(true);
+    } finally {
+      setIsSolving(false);
+    }
+  };
+
   const [localZScale, setLocalZScale] = useState(zScale || 1);
 
   useEffect(() => {
@@ -351,19 +395,95 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
     setModifiedPuzzleState(newState);
   };
 
-  // Export puzzle state to JSON file
+  // Export puzzle state to JSON file for download
   const exportPuzzleState = () => {
     if (!modifiedPuzzleState) return;
 
     const dataStr = JSON.stringify(modifiedPuzzleState, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
-    const exportFileDefaultName = `puzzle-state-${new Date().toISOString().slice(0, 10)}.json`;
-
+    const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
+    
+    const exportFileDefaultName = 'puzzle-state.json';
+    
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
+  };
+
+  // Export puzzle state to a file for the solver
+  const exportPuzzleStateToFile = async (filename: string) => {
+    if (!modifiedPuzzleState) throw new Error('No puzzle state to export');
+    
+    const dataStr = JSON.stringify(modifiedPuzzleState, null, 2);
+    
+    try {
+      // Create a Blob and save it to the public/data directory
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const formData = new FormData();
+      formData.append('file', blob, filename);
+      formData.append('path', 'data');
+      
+      const response = await fetch('/api/save-file', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to save file: ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error saving puzzle state:', error);
+      throw error;
+    }
+  };
+
+  // Call the Python solver application
+  const callPythonSolver = async (puzzleStateFilename: string, solutionFilename: string) => {
+    try {
+      const response = await fetch('/api/solve-puzzle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          puzzleStateFile: puzzleStateFilename,
+          libraryFile: 'piece_library.json', // Using the default library
+          solutionFile: solutionFilename
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to solve puzzle: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      return result.output;
+    } catch (error) {
+      console.error('Error calling Python solver:', error);
+      throw error;
+    }
+  };
+
+  // Import solution from the solver
+  const importSolution = async (solutionFilename: string) => {
+    try {
+      console.log(`Importing solution from: /data/${solutionFilename}`);
+      const response = await fetch(`/data/${solutionFilename}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load solution: ${response.statusText}`);
+      }
+      
+      const solutionData = await response.json();
+      console.log('Solution data loaded successfully:', solutionData);
+      setModifiedPuzzleState(solutionData);
+      return solutionData;
+    } catch (error) {
+      console.error('Error importing solution:', error);
+      throw error;
+    }
   };
 
   return (
@@ -422,6 +542,13 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
           >
             Reset to Default
           </button>
+          <button
+            onClick={solvePuzzle}
+            disabled={isSolving}
+            className={`px-3 py-1 text-sm ${isSolving ? 'bg-gray-400' : 'bg-purple-600 hover:bg-purple-700'} text-white rounded`}
+          >
+            {isSolving ? 'Solving...' : 'Solve'}
+          </button>
         </div>
       </div>
 
@@ -435,6 +562,38 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
           setSelectedPositions={setSelectedPositions}
         />
       </Canvas>
+      
+      {/* Solver output dialog */}
+      {showSolverOutput && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-[600px] max-h-[80vh] overflow-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">
+                Solver Output
+              </h3>
+              <button
+                onClick={() => setShowSolverOutput(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <pre className="bg-gray-100 p-4 rounded overflow-auto whitespace-pre-wrap text-sm font-mono">
+              {solverOutput || 'No output available'}
+            </pre>
+            
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setShowSolverOutput(false)}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Selection dialog - Moved to the right side to avoid occluding the view */}
       {selectedPositions.length > 0 && modifiedPuzzleState && (
@@ -452,6 +611,7 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
               ✕
             </button>
           </div>
+
 
           <div className="mb-2">
             <h4 className="font-medium mb-1">Select Piece:</h4>
