@@ -49,6 +49,12 @@ window.addEventListener('piece-library-ready', () => {
   // Track the piece being edited
   let editingPieceElement = null;
 
+  // Check if iro is available before initializing the color picker
+  if (!window.iro) {
+    console.error('iro is not available yet. Cannot initialize color picker.');
+    return; // Exit early if iro is not available
+  }
+  
   // Initialize the color picker
   const colorPicker = new window.iro.ColorPicker('#color-wheel', {
     width: 200,

@@ -14,14 +14,15 @@ export default function PieceLibrary() {
   const initialized = useRef(false);
   const iroLoaded = useRef(false);
 
+  // We'll use the hook directly, but it will check for iro availability internally
   useInitializePieceLibrary(initialized);
 
   // Function to initialize the piece builder when both scripts are ready
   const initializePieceBuilder = () => {
     if (iroLoaded.current) {
       console.log('Initializing piece library...');
-      const event = new Event('piece-library-ready');
-      window.dispatchEvent(event);
+      // We don't need to dispatch the event here anymore
+      // as the hooks.ts will handle this safely
     }
   };
 
@@ -100,26 +101,26 @@ export default function PieceLibrary() {
         <div className="library-items border rounded-lg p-4 min-h-[700px] bg-gray-50 w-full"></div>
       </div>
 
-      {/* Load iro.js first and ensure it's fully loaded before proceeding */}
+      {/* Load iro.js first with higher priority */}
       <Script 
         src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"
         strategy="beforeInteractive"
-        onLoad={() => {
-          console.log('iro.js loaded');
+        onReady={() => {
+          console.log('iro.js is ready and fully initialized');
           if (window.iro) {
             console.log('iro is available in window');
             iroLoaded.current = true;
             // Wait for a moment to ensure iro is fully initialized
             setTimeout(() => {
               initializePieceBuilder();
-            }, 200);
+            }, 1000);
           } else {
             console.error('iro failed to load properly');
           }
         }}
       />
       
-      {/* Load piece-builder.js after iro.js */}
+      {/* Load piece-builder.js only after iro.js is confirmed to be loaded */}
       <Script 
         src="/piece-builder.js"
         strategy="afterInteractive"
