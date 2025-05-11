@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { spawn } from 'child_process';
-import { join } from 'path';
 
-// This is a streaming API endpoint
+// Get the API URL from environment variables or use a default for local development
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
+// This is a streaming API endpoint that proxies requests to the Python backend
 export async function POST(request: NextRequest) {
   try {
+    // Get the request data
     const data = await request.json();
     const { puzzleStateFile, libraryFile, solutionFile } = data;
 
+    // Validate required parameters
     if (!puzzleStateFile || !libraryFile || !solutionFile) {
       return NextResponse.json(
         { error: 'Missing required parameters' },
@@ -15,76 +18,60 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the paths relative to the iq_puzzler project root
-    const puzzleStatePath = join('puzzle_vis', 'public', 'data', 'temp', puzzleStateFile);
-    const libraryPath = join('puzzle_vis', 'public', 'data', libraryFile); // Use the library from the temp directory
-    const solutionPath = join('puzzle_vis', 'public', 'data', 'temp', solutionFile);
+    console.log(`Forwarding solve-puzzle request to Python backend at ${API_URL}`);
 
-    // Build the command arguments
-    const args = [
-      '--initial', puzzleStatePath,
-      '--library', libraryPath,
-      '--mode', 'pyramid',
-      '--solver', 'dlx',
-      '--output', solutionPath
-    ];
-
-    console.log('Executing command: iq-puzzler', args.join(' '));
-
-    // Create a new ReadableStream to stream the output
+    // Create a new ReadableStream to stream the output from the Python backend
     const stream = new ReadableStream({
       async start(controller) {
-        let outputBuffer = '';
-        let isCompleted = false;
-        let hasError = false;
+        try {
+          // Forward the request to the Python backend
+          const response = await fetch(`${API_URL}/api/solve-puzzle`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              puzzleStateFile,
+              libraryFile,
+              solutionFile
+            }),
+          });
 
-        // Spawn the process
-        const process = spawn('iq-puzzler', args, {
-          cwd: '/home/claudio/iq_puzzler' // Set the working directory to the main project root
-        });
+          if (!response.ok) {
+            const errorData = await response.json();
+            controller.enqueue(`data: ${JSON.stringify({
+              error: true,
+              message: errorData.error || 'Error connecting to backend service'
+            })}\n\n`);
+            controller.close();
+            return;
+          }
 
-        // Handle stdout data
-        process.stdout.on('data', (data) => {
-          const text = data.toString();
-          outputBuffer += text;
-          controller.enqueue(`data: ${JSON.stringify({ output: text })}\n\n`);
-        });
+          // Get the reader from the response body
+          const reader = response.body?.getReader();
+          if (!reader) {
+            throw new Error('Failed to get reader from response');
+          }
 
-        // Handle stderr data
-        process.stderr.on('data', (data) => {
-          const text = data.toString();
-          outputBuffer += text;
-          controller.enqueue(`data: ${JSON.stringify({ output: text, error: true })}\n\n`);
-        });
-
-        // Handle process completion
-        process.on('close', (code) => {
-          isCompleted = true;
-          hasError = code !== 0;
-
-          // Send completion event
-          controller.enqueue(`data: ${JSON.stringify({
-            completed: true,
-            success: !hasError,
-            solutionFile,
-            exitCode: code
-          })}\n\n`);
-
+          // Read and forward the streaming data
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            // Convert the Uint8Array to a string and forward it
+            const text = new TextDecoder().decode(value);
+            controller.enqueue(text);
+          }
+          
           controller.close();
-        });
-
-        // Handle process errors
-        process.on('error', (err) => {
-          console.error('Process error:', err);
-          hasError = true;
-
+        } catch (error) {
+          console.error('Error streaming from Python backend:', error);
           controller.enqueue(`data: ${JSON.stringify({
             error: true,
-            message: err.message
+            message: (error as Error).message
           })}\n\n`);
-
           controller.close();
-        });
+        }
       }
     });
 
@@ -97,9 +84,9 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error running solver:', error);
+    console.error('Error in API route:', error);
     return NextResponse.json(
-      { error: 'Error running solver', details: (error as Error).message },
+      { error: 'Error in API route', details: (error as Error).message },
       { status: 500 }
     );
   }

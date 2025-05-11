@@ -2,6 +2,11 @@
 
 A 3D puzzle solver for the "IQ Puzzler Pro" game, featuring both a Python backend solver and a Next.js visualization frontend.
 
+## Requirements
+
+- **Python**: 3.10 (required, will not work with other versions)
+- **Node.js**: 18+ (for the frontend)
+
 ## Project Structure
 
 - `src/` - Python solver core implementation
@@ -34,12 +39,14 @@ git push -u origin main
 4. Configure the service:
    - **Name**: `iq-puzzler-api`
    - **Root Directory**: `api`
-   - **Runtime**: Python
+   - **Runtime**: Python 3.10.x (important: must be Python 3.10)
    - **Build Command**: `pip install -r requirements.txt && pip install -e ..`
    - **Start Command**: `gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app`
    - **Environment Variables**:
      - `PORT`: `8080`
      - `PYTHONPATH`: `/app`
+
+   > **Important**: Make sure to select Python 3.10 as the runtime. The application will not work with other Python versions due to specific dependencies.
 
 #### 3. Deploy the Next.js Frontend
 
@@ -101,3 +108,30 @@ The frontend will be available at http://localhost:3000 and will connect to the 
 ### Backend (api)
 
 - `PORT`: Port to run the API server (default: 8080)
+
+## Troubleshooting
+
+### Python Version Issues
+
+This project requires Python 3.10 specifically. Common issues and solutions:
+
+1. **Deployment fails with dependency errors**: Make sure your hosting platform supports Python 3.10.
+   - For Render.com: Select Python 3.10.x in the runtime dropdown
+   - For Heroku: The `runtime.txt` file specifies Python 3.10.12
+   - For Railway: Use the Dockerfile which specifies Python 3.10.12
+
+2. **ImportError or ModuleNotFoundError**: This often happens when the Python version is incorrect. Check that you're using Python 3.10.
+
+3. **"No module named 'iq_puzzler'"**: Make sure the Python package is installed with:
+   ```bash
+   pip install -e .
+   ```
+   And that the `PYTHONPATH` environment variable includes the project root.
+
+### API Connection Issues
+
+1. **Frontend can't connect to backend**: Check that the `NEXT_PUBLIC_API_URL` environment variable is set correctly.
+
+2. **CORS errors**: The backend has CORS enabled, but you may need to add specific origins if you're hosting the frontend on a different domain.
+
+3. **Timeouts during puzzle solving**: Increase the timeout in the Gunicorn command (currently set to 120 seconds).
