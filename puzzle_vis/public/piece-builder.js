@@ -101,13 +101,29 @@ window.addEventListener('piece-library-ready', () => {
     return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
-  // Initialize grid
+  // Initialize grid with axes visualization
   function initializeGrid() {
+    // Clear and set up the grid container
     gridContainer.innerHTML = '';
-    gridContainer.style.display = 'grid';
-    gridContainer.style.gridTemplateColumns = 'repeat(4, 30px)';
-    gridContainer.style.gap = '5px';
+    gridContainer.style.position = 'relative';
     
+    // Create a wrapper for the grid and axes
+    const gridWrapper = document.createElement('div');
+    gridWrapper.style.position = 'relative';
+    gridWrapper.style.width = '140px'; // 4 cells * 30px + 3 gaps * 5px + extra space for axes
+    gridWrapper.style.height = '140px'; // 4 cells * 30px + 3 gaps * 5px + extra space for axes
+    gridWrapper.style.marginBottom = '20px';
+    
+    // Create the grid
+    const actualGrid = document.createElement('div');
+    actualGrid.style.display = 'grid';
+    actualGrid.style.gridTemplateColumns = 'repeat(4, 30px)';
+    actualGrid.style.gap = '5px';
+    actualGrid.style.position = 'absolute';
+    actualGrid.style.top = '0';
+    actualGrid.style.left = '0';
+    
+    // Add cells to the grid
     for (let i = 0; i < 16; i++) {
       const cell = document.createElement('div');
       cell.className = 'grid-cell';
@@ -124,8 +140,93 @@ window.addEventListener('piece-library-ready', () => {
         this.style.backgroundColor = this.dataset.active === 'true' ? colorPicker.color.hexString : '#f9f9f9';
       });
       
-      gridContainer.appendChild(cell);
+      actualGrid.appendChild(cell);
     }
+    
+    // Add the grid to the wrapper
+    gridWrapper.appendChild(actualGrid);
+    
+    // Create X axis (upwards, red)
+    const xAxis = document.createElement('div');
+    xAxis.style.position = 'absolute';
+    xAxis.style.bottom = '0';
+    xAxis.style.right = '0';
+    xAxis.style.width = '2px';
+    xAxis.style.height = '80px';
+    xAxis.style.backgroundColor = 'red';
+    xAxis.style.transform = 'translateX(15px)'; // Center on the last column
+    
+    // X axis arrow
+    const xArrow = document.createElement('div');
+    xArrow.style.position = 'absolute';
+    xArrow.style.top = '-10px';
+    xArrow.style.left = '-4px';
+    xArrow.style.width = '0';
+    xArrow.style.height = '0';
+    xArrow.style.borderLeft = '5px solid transparent';
+    xArrow.style.borderRight = '5px solid transparent';
+    xArrow.style.borderBottom = '10px solid red';
+    
+    // X axis label
+    const xLabel = document.createElement('div');
+    xLabel.style.position = 'absolute';
+    xLabel.style.top = '-25px';
+    xLabel.style.left = '-5px';
+    xLabel.style.color = 'red';
+    xLabel.style.fontWeight = 'bold';
+    xLabel.textContent = 'X';
+    
+    xAxis.appendChild(xArrow);
+    xAxis.appendChild(xLabel);
+    
+    // Create Y axis (leftwards, green)
+    const yAxis = document.createElement('div');
+    yAxis.style.position = 'absolute';
+    yAxis.style.bottom = '0';
+    yAxis.style.right = '0';
+    yAxis.style.height = '2px';
+    yAxis.style.width = '80px';
+    yAxis.style.backgroundColor = 'green';
+    yAxis.style.transform = 'translateY(15px)'; // Center on the bottom row
+    
+    // Y axis arrow
+    const yArrow = document.createElement('div');
+    yArrow.style.position = 'absolute';
+    yArrow.style.left = '-10px';
+    yArrow.style.top = '-4px';
+    yArrow.style.width = '0';
+    yArrow.style.height = '0';
+    yArrow.style.borderTop = '5px solid transparent';
+    yArrow.style.borderBottom = '5px solid transparent';
+    yArrow.style.borderRight = '10px solid green';
+    
+    // Y axis label
+    const yLabel = document.createElement('div');
+    yLabel.style.position = 'absolute';
+    yLabel.style.left = '-25px';
+    yLabel.style.top = '-8px';
+    yLabel.style.color = 'green';
+    yLabel.style.fontWeight = 'bold';
+    yLabel.textContent = 'Y';
+    
+    yAxis.appendChild(yArrow);
+    yAxis.appendChild(yLabel);
+    
+    // Add axes to the wrapper
+    gridWrapper.appendChild(xAxis);
+    gridWrapper.appendChild(yAxis);
+    
+    // Add the wrapper to the grid container
+    gridContainer.appendChild(gridWrapper);
+    
+    // Add a small legend explaining the coordinate system
+    const legend = document.createElement('div');
+    legend.style.marginTop = '10px';
+    legend.style.fontSize = '12px';
+    legend.style.color = '#666';
+    legend.innerHTML = 'Coordinate system: <span style="color:red;font-weight:bold">X</span> (up), <span style="color:green;font-weight:bold">Y</span> (left) starting from bottom right';
+    
+    gridContainer.appendChild(legend);
   }
 
   // Load saved library from localStorage
@@ -229,26 +330,55 @@ window.addEventListener('piece-library-ready', () => {
     }
   }
 
-  // Edit piece
+  // Edit an existing piece
   function editPiece(button) {
     const item = button.closest('.library-item');
+    const name = item.querySelector('.library-item-name').textContent;
     const gridElement = item.querySelector('.library-item-grid');
-    const grid = JSON.parse(gridElement.dataset.grid);
     const color = gridElement.dataset.color;
+    const grid = JSON.parse(gridElement.dataset.grid);
     
+    // Set the editing state
     editingPieceElement = item;
-    colorNameInput.value = item.querySelector('.library-item-name').textContent;
+    savePieceButton.textContent = 'Update';
+    
+    // Set the color name input
+    colorNameInput.value = name;
 
     // Convert color to hex if needed
     const hexColor = rgbToHex(color);
     console.log('Setting color picker to:', hexColor);
     colorPicker.color.hexString = hexColor;
   
-    const cells = gridContainer.children;
+    // Reset all grid cells first
+    const gridWrapper = gridContainer.querySelector('div'); // Get the wrapper div
+    if (!gridWrapper) {
+      console.error('Grid wrapper not found');
+      return;
+    }
+    
+    const actualGrid = gridWrapper.querySelector('div'); // Get the actual grid div
+    if (!actualGrid) {
+      console.error('Actual grid not found');
+      return;
+    }
+    
+    const cells = actualGrid.querySelectorAll('.grid-cell');
+    console.log('Found', cells.length, 'grid cells');
+    
+    // Reset all cells first
+    cells.forEach(cell => {
+      cell.dataset.active = 'false';
+      cell.style.backgroundColor = '#f9f9f9';
+    });
+    
+    // Apply the piece grid
     const grid4x4 = grid.slice(0, 16);
     grid4x4.forEach((isActive, index) => {
-      cells[index].dataset.active = isActive.toString();
-      cells[index].style.backgroundColor = isActive ? hexColor : '#f9f9f9';
+      if (index < cells.length) {
+        cells[index].dataset.active = isActive.toString();
+        cells[index].style.backgroundColor = isActive ? hexColor : '#f9f9f9';
+      }
     });
   }
 
@@ -264,9 +394,24 @@ window.addEventListener('piece-library-ready', () => {
   // Reset editor to initial state
   function resetEditor() {
     editingPieceElement = null;
+    savePieceButton.textContent = 'Save';
     colorNameInput.value = '';
-    const cells = gridContainer.children;
-    Array.from(cells).forEach(cell => {
+    
+    // Reset grid cells in the new structure
+    const gridWrapper = gridContainer.querySelector('div');
+    if (!gridWrapper) {
+      console.error('Grid wrapper not found');
+      return;
+    }
+    
+    const actualGrid = gridWrapper.querySelector('div');
+    if (!actualGrid) {
+      console.error('Actual grid not found');
+      return;
+    }
+    
+    const cells = actualGrid.querySelectorAll('.grid-cell');
+    cells.forEach(cell => {
       cell.dataset.active = 'false';
       cell.style.backgroundColor = '#f9f9f9';
     });
@@ -320,7 +465,22 @@ window.addEventListener('piece-library-ready', () => {
     }
     
     const color = colorPicker.color.hexString;
-    const grid = Array.from(gridContainer.children).map(cell => cell.dataset.active === 'true');
+    
+    // Get grid cells from the new structure
+    const gridWrapper = gridContainer.querySelector('div'); // Get the wrapper div
+    if (!gridWrapper) {
+      console.error('Grid wrapper not found');
+      return;
+    }
+    
+    const actualGrid = gridWrapper.querySelector('div'); // Get the actual grid div
+    if (!actualGrid) {
+      console.error('Actual grid not found');
+      return;
+    }
+    
+    const cells = actualGrid.querySelectorAll('.grid-cell');
+    const grid = Array.from(cells).map(cell => cell.dataset.active === 'true');
     
     if (!grid.some(cell => cell)) {
       alert('Please select at least one cell in the grid');
