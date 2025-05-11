@@ -4,13 +4,10 @@ let initialized = false;
 
 // Initialize when the piece library is ready
 window.addEventListener('piece-library-ready', () => {
-  if (initialized) {
-    console.log('Already initialized, skipping');
-    return;
-  }
+  // Always reinitialize when the event is received
+  // This ensures the library is loaded when switching between pages
+  console.log('Piece library ready event received');
   initialized = true;
-  
-  console.log('Piece library ready event received')
   
   // DOM Elements
   const gridContainer = document.getElementById('grid-container');
@@ -288,13 +285,28 @@ window.addEventListener('piece-library-ready', () => {
   async function resetLibrary() {
     if (confirm('Are you sure you want to reset to the default library? This will replace all current pieces.')) {
       try {
+        console.log('Fetching default piece library...');
         const response = await fetch('/data/piece_library.json');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+        }
         const defaultPieces = await response.json();
+        console.log('Default pieces loaded:', defaultPieces);
         localStorage.setItem('pieceLibrary', JSON.stringify(defaultPieces));
+        
+        // Make sure the library container is available before loading
+        const libraryContainer = document.querySelector('.library-items');
+        if (!libraryContainer) {
+          console.error('Library container not found');
+          alert('Error: Library container not found');
+          return;
+        }
+        
         loadLibrary(defaultPieces);
+        console.log('Default library loaded successfully');
       } catch (error) {
         console.error('Error loading default library:', error);
-        alert('Error loading default library');
+        alert('Error loading default library: ' + error.message);
       }
     }
   }
@@ -398,15 +410,41 @@ window.addEventListener('piece-library-ready', () => {
   resetLibraryButton.addEventListener('click', resetLibrary);
 
   // Load saved library from localStorage or default
-  const savedLibrary = localStorage.getItem('pieceLibrary');
-  if (savedLibrary) {
-    try {
-      const pieces = JSON.parse(savedLibrary);
-      loadLibrary(pieces);
-    } catch (error) {
-      console.error('Error parsing saved library:', error);
+  // This is crucial for when switching between pages
+  function loadSavedLibrary() {
+    console.log('Loading saved library from localStorage');
+    const savedLibrary = localStorage.getItem('pieceLibrary');
+    if (savedLibrary) {
+      try {
+        const pieces = JSON.parse(savedLibrary);
+        console.log('Found saved pieces:', pieces.length);
+        loadLibrary(pieces);
+      } catch (error) {
+        console.error('Error parsing saved library:', error);
+      }
+    } else {
+      console.log('No saved library found, trying to load default');
+      // If no saved library, try to load the default
+      fetch('/data/piece_library.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(defaultPieces => {
+          console.log('Default pieces loaded:', defaultPieces);
+          localStorage.setItem('pieceLibrary', JSON.stringify(defaultPieces));
+          loadLibrary(defaultPieces);
+        })
+        .catch(error => {
+          console.error('Error loading default library:', error);
+        });
     }
   }
+  
+  // Always load the library when initializing
+  loadSavedLibrary();
 
   // Initialize the application
   initializeGrid();

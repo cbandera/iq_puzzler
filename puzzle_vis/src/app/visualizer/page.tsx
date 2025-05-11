@@ -159,8 +159,11 @@ function Scene({
         target={center}
         makeDefault
       />
-      <ambientLight intensity={0.5} />
-      <pointLight position={[center.x + 10, center.y - 10, center.z + 10]} intensity={1} />
+      {/* Enhanced lighting setup for more vibrant colors */}
+      <ambientLight intensity={0.7} />
+      <pointLight position={[center.x + 10, center.y - 10, center.z + 10]} intensity={1.2} />
+      <pointLight position={[center.x - 10, center.y + 10, center.z + 10]} intensity={0.8} color="#ffffff" />
+      <directionalLight position={[0, 0, 10]} intensity={0.6} />
 
       {/* Coordinate axes positioned near the spheres */}
       <CoordinateAxes />
@@ -169,19 +172,24 @@ function Scene({
       {puzzleState && Object.entries(puzzleState).map(([key, position]) => {
         const isSelected = key === selectedPosition;
 
+        // Enhanced material settings for more vibrant colors
         const material = position.occupied
-          ? new THREE.MeshStandardMaterial({
+          ? new THREE.MeshPhysicalMaterial({
             color: position.piece_color || '#ffffff',
-            roughness: 0.3,
-            metalness: 0.1,
-            emissive: isSelected ? new THREE.Color(0x555555) : undefined,
+            roughness: 0.1,         // Lower roughness for more shine
+            metalness: 0.0,         // No metalness for brighter colors
+            clearcoat: 0.3,         // Add slight clearcoat for shine
+            clearcoatRoughness: 0.2,
+            emissive: isSelected ? new THREE.Color(0x555555) : new THREE.Color(position.piece_color || '#ffffff').multiplyScalar(0.15),
+            emissiveIntensity: isSelected ? 0.5 : 0.2,
           })
-          : new THREE.MeshStandardMaterial({
+          : new THREE.MeshPhysicalMaterial({
             color: '#808080',
             transparent: true,
             opacity: 0.3,
-            roughness: 0.3,
-            metalness: 0.1,
+            roughness: 0.2,
+            metalness: 0.0,
+            clearcoat: 0.1,
             emissive: isSelected ? new THREE.Color(0x555555) : undefined,
           });
 
