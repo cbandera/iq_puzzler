@@ -184,25 +184,30 @@ function Scene({
       {puzzleState && Object.entries(puzzleState).map(([key, position]) => {
         const isSelected = selectedPositions.includes(key);
 
-        // Enhanced material settings for more vibrant colors
+        // Enhanced material settings with more pronounced selection highlighting
         const material = position.occupied
           ? new THREE.MeshPhysicalMaterial({
-            color: position.piece_color || '#ffffff',
-            roughness: 0.1,         // Lower roughness for more shine
-            metalness: 0.0,         // No metalness for brighter colors
-            clearcoat: 0.3,         // Add slight clearcoat for shine
+            // If selected, make the sphere black with the original color as emissive
+            color: isSelected ? '#000000' : position.piece_color || '#ffffff',
+            roughness: isSelected ? 0.3 : 0.1,  // Rougher when selected
+            metalness: 0.0,                     // No metalness for brighter colors
+            clearcoat: isSelected ? 0.5 : 0.3,  // More clearcoat when selected
             clearcoatRoughness: 0.2,
-            emissive: isSelected ? new THREE.Color(0x555555) : new THREE.Color(position.piece_color || '#ffffff').multiplyScalar(0.15),
-            emissiveIntensity: isSelected ? 0.5 : 0.2,
+            // Use original color as emissive when selected for a glowing effect
+            emissive: isSelected 
+              ? new THREE.Color(position.piece_color || '#ffffff') 
+              : new THREE.Color(position.piece_color || '#ffffff').multiplyScalar(0.15),
+            emissiveIntensity: isSelected ? 0.7 : 0.2,
           })
           : new THREE.MeshPhysicalMaterial({
-            color: '#808080',
-            transparent: true,
-            opacity: 0.3,
-            roughness: 0.2,
+            color: isSelected ? '#000000' : '#808080',
+            transparent: !isSelected,           // Not transparent when selected
+            opacity: isSelected ? 1.0 : 0.3,
+            roughness: isSelected ? 0.3 : 0.2,
             metalness: 0.0,
-            clearcoat: 0.1,
-            emissive: isSelected ? new THREE.Color(0x555555) : undefined,
+            clearcoat: isSelected ? 0.5 : 0.1,
+            emissive: isSelected ? new THREE.Color('#ffffff') : undefined,
+            emissiveIntensity: isSelected ? 0.3 : 0,
           });
 
         return (
@@ -431,9 +436,9 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
         />
       </Canvas>
 
-      {/* Selection dialog - Redesigned to fit all options without scrolling */}
+      {/* Selection dialog - Moved to the right side to avoid occluding the view */}
       {selectedPositions.length > 0 && modifiedPuzzleState && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow-lg w-96">
+        <div className="absolute top-0 right-0 m-4 bg-white p-4 rounded shadow-lg w-80 max-h-[90vh] overflow-auto">
           <div className="flex justify-between items-center mb-2">
             <h3 className="font-bold">
               {selectedPositions.length === 1 
