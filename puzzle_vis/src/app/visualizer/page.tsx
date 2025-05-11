@@ -466,11 +466,12 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
     const dataStr = JSON.stringify(modifiedPuzzleState, null, 2);
     
     try {
-      // Create a Blob and save it to the public/data directory
+      // Create a Blob and save it to the public/data/temp directory
       const blob = new Blob([dataStr], { type: 'application/json' });
       const formData = new FormData();
       formData.append('file', blob, filename);
       formData.append('path', 'data');
+      formData.append('subdir', 'temp'); // Specify the temp subdirectory
       
       const response = await fetch('/api/save-file', {
         method: 'POST',
@@ -518,8 +519,8 @@ export default function PuzzleViewer({ puzzleState, zScale }: PuzzleViewerProps)
   // Import solution from the solver
   const importSolution = async (solutionFilename: string) => {
     try {
-      console.log(`Importing solution from: /data/${solutionFilename}`);
-      const response = await fetch(`/data/${solutionFilename}`);
+      console.log(`Importing solution from: /data/temp/${solutionFilename}`);
+      const response = await fetch(`/data/temp/${solutionFilename}`);
       
       if (!response.ok) {
         throw new Error(`Failed to load solution: ${response.statusText}`);

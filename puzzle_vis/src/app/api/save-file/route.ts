@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const pathParam = formData.get('path') as string;
+    const subdir = formData.get('subdir') as string || 'temp'; // Default to 'temp' subdirectory
     
     if (!file) {
       return NextResponse.json(
@@ -16,8 +17,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Determine the directory path
-    const directoryPath = join(process.cwd(), 'public', pathParam || '');
+    // Determine the directory path including the subdirectory
+    const directoryPath = join(process.cwd(), 'public', pathParam || '', subdir);
     
     // Create directory if it doesn't exist
     if (!existsSync(directoryPath)) {
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: true, 
       message: 'File saved successfully',
-      path: `/${pathParam}/${file.name}`
+      path: `/${pathParam}/${subdir}/${file.name}`
     });
   } catch (error) {
     console.error('Error saving file:', error);
