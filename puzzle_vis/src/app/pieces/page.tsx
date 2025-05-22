@@ -1,12 +1,12 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import Script from 'next/script'
 import { useInitializePieceLibrary } from '@/utils/hooks';
 
 // Extend Window interface to include iro
 declare global {
   interface Window {
-    iro?: any;
+    iro?: object;
   }
 }
 

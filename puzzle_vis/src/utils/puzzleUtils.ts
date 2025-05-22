@@ -24,7 +24,7 @@ export function calculateCenterOfMass(puzzleState: PuzzleState, zScale: number) 
 export function validatePuzzleData(data: unknown): data is PuzzleState {
   if (!data || typeof data !== 'object') return false;
   
-  for (const [_, value] of Object.entries(data)) {
+  for (const [, value] of Object.entries(data)) {
     if (!value || typeof value !== 'object') return false;
     if (!('occupied' in value) || typeof value.occupied !== 'boolean') return false;
     if ('piece_color' in value && value.piece_color !== null && typeof value.piece_color !== 'string') return false;
