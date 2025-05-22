@@ -5,81 +5,94 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 // This is a streaming API endpoint that proxies requests to the Python backend
 export async function POST(request: NextRequest) {
+  console.log('[NextProxy] Received POST request to /api/solve-puzzle');
   try {
     // Get the request data
     const data = await request.json();
-    // Expecting puzzleStateContent, libraryContent, and solutionFile (as a hint)
     const { puzzleStateContent, libraryContent, solutionFile } = data;
+    console.log(`[NextProxy] Parsed request body. SolutionFile hint: ${solutionFile}`);
+    // console.log(`[NextProxy] puzzleStateContent (first 100 chars): ${puzzleStateContent?.substring(0, 100)}`);
+    // console.log(`[NextProxy] libraryContent (first 100 chars): ${libraryContent?.substring(0, 100)}`);
 
-    // Validate required parameters
-    if (!puzzleStateContent || !libraryContent) { // solutionFile is optional here
+    if (!puzzleStateContent || !libraryContent) {
+      console.error('[NextProxy] Missing required parameters: puzzleStateContent or libraryContent');
       return NextResponse.json(
         { error: 'Missing required parameters: puzzleStateContent or libraryContent' },
         { status: 400 }
       );
     }
 
-    console.log(`Forwarding solve-puzzle request to Python backend at ${API_URL}`);
+    const targetUrl = `${API_URL}/api/solve-puzzle`;
+    console.log(`[NextProxy] Forwarding solve-puzzle request to Python backend at: ${targetUrl}`);
 
-    // Create a new ReadableStream to stream the output from the Python backend
     const stream = new ReadableStream({
       async start(controller) {
+        console.log('[NextProxy] Stream started. Making fetch to Python backend.');
         try {
-          // Forward the request to the Python backend
-          const response = await fetch(`${API_URL}/api/solve-puzzle`, {
+          const requestBody = JSON.stringify({
+            puzzleStateContent,
+            libraryContent,
+            solutionFile
+          });
+          // console.log(`[NextProxy] Sending body to Python: ${requestBody.substring(0,200)}...`); // Log part of actual body
+
+          const response = await fetch(targetUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              puzzleStateContent, // Forward content
-              libraryContent,   // Forward content
-              solutionFile      // Forward filename hint
-            }),
+            body: requestBody,
           });
 
+          console.log(`[NextProxy] Received response from Python backend. Status: ${response.status}`);
+
           if (!response.ok) {
-            let errorData = { error: 'Error connecting to backend service' };
+            let errorData = { error: 'Error connecting to backend service', details: '' };
             try {
-                errorData = await response.json();
+                const errorText = await response.text();
+                console.error(`[NextProxy] Python backend error response text: ${errorText}`);
+                errorData = JSON.parse(errorText); // Try to parse if JSON
             } catch (e) {
-                // If parsing errorData fails, use the default error
-                console.error('Failed to parse error response from backend:', e);
+                console.error('[NextProxy] Failed to parse error response from Python backend:', e);
+                errorData.details = `Status: ${response.status}, StatusText: ${response.statusText}. Response body was not valid JSON.`;
             }
             controller.enqueue(`data: ${JSON.stringify({
               error: true,
-              message: errorData.error || 'Error connecting to backend service'
+              message: errorData.error || 'Error connecting to backend service',
+              details: errorData.details
             })}\n\n`);
             controller.close();
             return;
           }
 
-          // Get the reader from the response body
           const reader = response.body?.getReader();
           if (!reader) {
+            console.error('[NextProxy] Failed to get reader from Python backend response.');
             controller.enqueue(`data: ${JSON.stringify({ error: true, message: 'Failed to get reader from backend response' })}\n\n`);
             controller.close();
             return;
           }
 
-          // Pump the data from the Python backend to the client
+          console.log('[NextProxy] Successfully got reader. Pumping data from Python backend to client...');
           while (true) {
             const { done, value } = await reader.read();
             if (done) {
+              console.log('[NextProxy] Python backend stream finished.');
               break;
             }
-            // value is Uint8Array, decode it to string
             const chunk = new TextDecoder().decode(value);
-            controller.enqueue(chunk); // Forward the raw chunk as it's already SSE formatted
+            // console.log(`[NextProxy] Received chunk from Python: ${chunk}`); // Can be very verbose
+            controller.enqueue(chunk);
           }
         } catch (error) {
-          console.error('Error in stream start:', error);
+          console.error('[NextProxy] Error in stream start / fetching from Python backend:', error);
           let errorMessage = 'Internal server error in stream';
           if (error instanceof Error) {
             errorMessage = error.message;
           }
           controller.enqueue(`data: ${JSON.stringify({ error: true, message: errorMessage })}\n\n`);
         } finally {
+          console.log('[NextProxy] Stream controller closing.');
           controller.close();
         }
       },
@@ -93,7 +106,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error in POST handler:', error);
+    console.error('[NextProxy] Error in POST handler:', error);
     let errorMessage = 'Internal server error';
     if (error instanceof Error) {
         errorMessage = error.message;

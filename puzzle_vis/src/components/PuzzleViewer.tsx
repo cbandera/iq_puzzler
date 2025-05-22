@@ -304,8 +304,12 @@ export default function PuzzleViewer({ puzzleState: initialPuzzleState, zScale }
         for (const event of events) {
           if (event.startsWith('data: ')) {
             try {
+              console.log('Attempting to parse event.data:', event.slice(5));
               const eventData = JSON.parse(event.slice(5));
-              if (eventData.output) {
+
+              if (eventData.error && eventData.message) {
+                setSolverOutput(prev => prev + `\nError: ${eventData.message}`);
+              } else if (eventData.output) {
                 setSolverOutput(prev => prev + eventData.output);
               }
               if (eventData.completed && eventData.success) {
@@ -328,7 +332,8 @@ export default function PuzzleViewer({ puzzleState: initialPuzzleState, zScale }
                 setSolverOutput(prev => prev + '\nSolver reported completion but was not successful.');
               }
             } catch (e) {
-              console.error('Error parsing event data:', e);
+              console.error('Error processing solver event:', e);
+              console.error('Failed event.data:', event.slice(5));
               setSolverOutput(prev => prev + `\nError processing solver event: ${e instanceof Error ? e.message : String(e)}`);
             }
           }
