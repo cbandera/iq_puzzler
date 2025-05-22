@@ -1,0 +1,36 @@
+# Exported from Render on 2025-05-22T19:13:17Z
+services:
+- type: web
+  name: iq_puzzler_solver
+  runtime: python
+  repo: https://github.com/cbandera/iq_puzzler
+  branch: develop
+  plan: free
+  envVars:
+  - key: PYTHON_VERSION
+    sync: false
+  - key: PYTHONPATH
+    sync: false
+  - key: PORT
+    sync: false
+  region: frankfurt
+  buildCommand: pip install -r requirements.txt && pip install -e ..
+  startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app
+  healthCheckPath: /api/health
+  autoDeployTrigger: commit
+  rootDir: api
+- type: web
+  name: iq_puzzler
+  runtime: node
+  repo: https://github.com/cbandera/iq_puzzler
+  branch: develop
+  plan: free
+  envVars:
+  - key: NEXT_PUBLIC_API_URL
+    sync: false
+  region: frankfurt
+  buildCommand: npm install && npm run build
+  startCommand: npm start
+  autoDeployTrigger: commit
+  rootDir: puzzle_vis
+version: "1"
