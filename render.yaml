@@ -1,4 +1,4 @@
-# Exported from Render on 2025-05-22T19:13:17Z
+ # Exported from Render on 2025-05-22T19:13:17Z
 services:
 - type: web
   name: iq_puzzler_solver

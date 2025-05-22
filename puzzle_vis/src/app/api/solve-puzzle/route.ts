@@ -8,12 +8,13 @@ export async function POST(request: NextRequest) {
   try {
     // Get the request data
     const data = await request.json();
-    const { puzzleStateFile, libraryFile, solutionFile } = data;
+    // Expecting puzzleStateContent, libraryContent, and solutionFile (as a hint)
+    const { puzzleStateContent, libraryContent, solutionFile } = data;
 
     // Validate required parameters
-    if (!puzzleStateFile || !libraryFile || !solutionFile) {
+    if (!puzzleStateContent || !libraryContent) { // solutionFile is optional here
       return NextResponse.json(
-        { error: 'Missing required parameters' },
+        { error: 'Missing required parameters: puzzleStateContent or libraryContent' },
         { status: 400 }
       );
     }
@@ -31,14 +32,20 @@ export async function POST(request: NextRequest) {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              puzzleStateFile,
-              libraryFile,
-              solutionFile
+              puzzleStateContent, // Forward content
+              libraryContent,   // Forward content
+              solutionFile      // Forward filename hint
             }),
           });
 
           if (!response.ok) {
-            const errorData = await response.json();
+            let errorData = { error: 'Error connecting to backend service' };
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                // If parsing errorData fails, use the default error
+                console.error('Failed to parse error response from backend:', e);
+            }
             controller.enqueue(`data: ${JSON.stringify({
               error: true,
               message: errorData.error || 'Error connecting to backend service'
@@ -50,44 +57,48 @@ export async function POST(request: NextRequest) {
           // Get the reader from the response body
           const reader = response.body?.getReader();
           if (!reader) {
-            throw new Error('Failed to get reader from response');
+            controller.enqueue(`data: ${JSON.stringify({ error: true, message: 'Failed to get reader from backend response' })}\n\n`);
+            controller.close();
+            return;
           }
 
-          // Read and forward the streaming data
+          // Pump the data from the Python backend to the client
+          // eslint-disable-next-line no-constant-condition
           while (true) {
             const { done, value } = await reader.read();
-            if (done) break;
-            
-            // Convert the Uint8Array to a string and forward it
-            const text = new TextDecoder().decode(value);
-            controller.enqueue(text);
+            if (done) {
+              break;
+            }
+            // value is Uint8Array, decode it to string
+            const chunk = new TextDecoder().decode(value);
+            controller.enqueue(chunk); // Forward the raw chunk as it's already SSE formatted
           }
-          
-          controller.close();
         } catch (error) {
-          console.error('Error streaming from Python backend:', error);
-          controller.enqueue(`data: ${JSON.stringify({
-            error: true,
-            message: (error as Error).message
-          })}\n\n`);
+          console.error('Error in stream start:', error);
+          let errorMessage = 'Internal server error in stream';
+          if (error instanceof Error) {
+            errorMessage = error.message;
+          }
+          controller.enqueue(`data: ${JSON.stringify({ error: true, message: errorMessage })}\n\n`);
+        } finally {
           controller.close();
         }
-      }
+      },
     });
 
-    // Return the stream as a Server-Sent Events response
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-      }
+        'Connection': 'keep-alive',
+      },
     });
   } catch (error) {
-    console.error('Error in API route:', error);
-    return NextResponse.json(
-      { error: 'Error in API route', details: (error as Error).message },
-      { status: 500 }
-    );
+    console.error('Error in POST handler:', error);
+    let errorMessage = 'Internal server error';
+    if (error instanceof Error) {
+        errorMessage = error.message;
+    }
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

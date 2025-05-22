@@ -1,0 +1,552 @@
+{
+  "0": {
+    "coordinate": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Purple",
+    "piece_color": "rgb(152, 14, 232)"
+  },
+  "1": {
+    "coordinate": {
+      "x": 1.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Purple",
+    "piece_color": "rgb(152, 14, 232)"
+  },
+  "2": {
+    "coordinate": {
+      "x": 2.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Light Blue",
+    "piece_color": "rgb(118, 183, 232)"
+  },
+  "3": {
+    "coordinate": {
+      "x": 3.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Light Blue",
+    "piece_color": "rgb(118, 183, 232)"
+  },
+  "4": {
+    "coordinate": {
+      "x": 4.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Light Blue",
+    "piece_color": "rgb(118, 183, 232)"
+  },
+  "5": {
+    "coordinate": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Dark Green",
+    "piece_color": "rgb(91, 181, 137)"
+  },
+  "6": {
+    "coordinate": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Purple",
+    "piece_color": "rgb(152, 14, 232)"
+  },
+  "7": {
+    "coordinate": {
+      "x": 2.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Purple",
+    "piece_color": "rgb(152, 14, 232)"
+  },
+  "8": {
+    "coordinate": {
+      "x": 3.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Turquise",
+    "piece_color": "rgb(49, 232, 211)"
+  },
+  "9": {
+    "coordinate": {
+      "x": 4.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Light Blue",
+    "piece_color": "rgb(118, 183, 232)"
+  },
+  "10": {
+    "coordinate": {
+      "x": 0.0,
+      "y": 2.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Dark Green",
+    "piece_color": "rgb(91, 181, 137)"
+  },
+  "11": {
+    "coordinate": {
+      "x": 1.0,
+      "y": 2.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Dark Green",
+    "piece_color": "rgb(91, 181, 137)"
+  },
+  "12": {
+    "coordinate": {
+      "x": 2.0,
+      "y": 2.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Purple",
+    "piece_color": "rgb(152, 14, 232)"
+  },
+  "13": {
+    "coordinate": {
+      "x": 3.0,
+      "y": 2.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Orange",
+    "piece_color": "rgb(255, 162, 0)"
+  },
+  "14": {
+    "coordinate": {
+      "x": 4.0,
+      "y": 2.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Light Blue",
+    "piece_color": "rgb(118, 183, 232)"
+  },
+  "15": {
+    "coordinate": {
+      "x": 0.0,
+      "y": 3.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Dark Green",
+    "piece_color": "rgb(91, 181, 137)"
+  },
+  "16": {
+    "coordinate": {
+      "x": 1.0,
+      "y": 3.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Yellow",
+    "piece_color": "rgb(255, 255, 0)"
+  },
+  "17": {
+    "coordinate": {
+      "x": 2.0,
+      "y": 3.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Orange",
+    "piece_color": "rgb(255, 162, 0)"
+  },
+  "18": {
+    "coordinate": {
+      "x": 3.0,
+      "y": 3.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Orange",
+    "piece_color": "rgb(255, 162, 0)"
+  },
+  "19": {
+    "coordinate": {
+      "x": 4.0,
+      "y": 3.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Orange",
+    "piece_color": "rgb(255, 162, 0)"
+  },
+  "20": {
+    "coordinate": {
+      "x": 0.0,
+      "y": 4.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Yellow",
+    "piece_color": "rgb(255, 255, 0)"
+  },
+  "21": {
+    "coordinate": {
+      "x": 1.0,
+      "y": 4.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Yellow",
+    "piece_color": "rgb(255, 255, 0)"
+  },
+  "22": {
+    "coordinate": {
+      "x": 2.0,
+      "y": 4.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Yellow",
+    "piece_color": "rgb(255, 255, 0)"
+  },
+  "23": {
+    "coordinate": {
+      "x": 3.0,
+      "y": 4.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Yellow",
+    "piece_color": "rgb(255, 255, 0)"
+  },
+  "24": {
+    "coordinate": {
+      "x": 4.0,
+      "y": 4.0,
+      "z": 0.0
+    },
+    "occupied": true,
+    "piece_name": "Orange",
+    "piece_color": "rgb(255, 162, 0)"
+  },
+  "25": {
+    "coordinate": {
+      "x": 0.5,
+      "y": 0.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Mint Green",
+    "piece_color": "#7dfabe"
+  },
+  "26": {
+    "coordinate": {
+      "x": 1.5,
+      "y": 0.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Mint Green",
+    "piece_color": "#7dfabe"
+  },
+  "27": {
+    "coordinate": {
+      "x": 2.5,
+      "y": 0.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Turquise",
+    "piece_color": "rgb(49, 232, 211)"
+  },
+  "28": {
+    "coordinate": {
+      "x": 3.5,
+      "y": 0.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Pink",
+    "piece_color": "#ed66aa"
+  },
+  "29": {
+    "coordinate": {
+      "x": 0.5,
+      "y": 1.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Mint Green",
+    "piece_color": "#7dfabe"
+  },
+  "30": {
+    "coordinate": {
+      "x": 1.5,
+      "y": 1.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Mint Green",
+    "piece_color": "#7dfabe"
+  },
+  "31": {
+    "coordinate": {
+      "x": 2.5,
+      "y": 1.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Wine Red",
+    "piece_color": "#9e2f39"
+  },
+  "32": {
+    "coordinate": {
+      "x": 3.5,
+      "y": 1.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Turquise",
+    "piece_color": "rgb(49, 232, 211)"
+  },
+  "33": {
+    "coordinate": {
+      "x": 0.5,
+      "y": 2.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Red",
+    "piece_color": "rgb(232, 0, 8)"
+  },
+  "34": {
+    "coordinate": {
+      "x": 1.5,
+      "y": 2.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Mint Green",
+    "piece_color": "#7dfabe"
+  },
+  "35": {
+    "coordinate": {
+      "x": 2.5,
+      "y": 2.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Green",
+    "piece_color": "#cbe600"
+  },
+  "36": {
+    "coordinate": {
+      "x": 3.5,
+      "y": 2.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Wine Red",
+    "piece_color": "#9e2f39"
+  },
+  "37": {
+    "coordinate": {
+      "x": 0.5,
+      "y": 3.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Red",
+    "piece_color": "rgb(232, 0, 8)"
+  },
+  "38": {
+    "coordinate": {
+      "x": 1.5,
+      "y": 3.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Red",
+    "piece_color": "rgb(232, 0, 8)"
+  },
+  "39": {
+    "coordinate": {
+      "x": 2.5,
+      "y": 3.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Red",
+    "piece_color": "rgb(232, 0, 8)"
+  },
+  "40": {
+    "coordinate": {
+      "x": 3.5,
+      "y": 3.5,
+      "z": 0.7071067811865476
+    },
+    "occupied": true,
+    "piece_name": "Red",
+    "piece_color": "rgb(232, 0, 8)"
+  },
+  "41": {
+    "coordinate": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.4142135623730951
+    },
+    "occupied": true,
+    "piece_name": "Blue",
+    "piece_color": "#0000ff"
+  },
+  "42": {
+    "coordinate": {
+      "x": 2.0,
+      "y": 1.0,
+      "z": 1.4142135623730951
+    },
+    "occupied": true,
+    "piece_name": "Wine Red",
+    "piece_color": "#9e2f39"
+  },
+  "43": {
+    "coordinate": {
+      "x": 3.0,
+      "y": 1.0,
+      "z": 1.4142135623730951
+    },
+    "occupied": true,
+    "piece_name": "Pink",
+    "piece_color": "#ed66aa"
+  },
+  "44": {
+    "coordinate": {
+      "x": 1.0,
+      "y": 2.0,
+      "z": 1.4142135623730951
+    },
+    "occupied": true,
+    "piece_name": "Blue",
+    "piece_color": "#0000ff"
+  },
+  "45": {
+    "coordinate": {
+      "x": 2.0,
+      "y": 2.0,
+      "z": 1.4142135623730951
+    },
+    "occupied": true,
+    "piece_name": "Pink",
+    "piece_color": "#ed66aa"
+  },
+  "46": {
+    "coordinate": {
+      "x": 3.0,
+      "y": 2.0,
+      "z": 1.4142135623730951
+    },
+    "occupied": true,
+    "piece_name": "Wine Red",
+    "piece_color": "#9e2f39"
+  },
+  "47": {
+    "coordinate": {
+      "x": 1.0,
+      "y": 3.0,
+      "z": 1.4142135623730951
+    },
+    "occupied": true,
+    "piece_name": "Blue",
+    "piece_color": "#0000ff"
+  },
+  "48": {
+    "coordinate": {
+      "x": 2.0,
+      "y": 3.0,
+      "z": 1.4142135623730951
+    },
+    "occupied": true,
+    "piece_name": "Blue",
+    "piece_color": "#0000ff"
+  },
+  "49": {
+    "coordinate": {
+      "x": 3.0,
+      "y": 3.0,
+      "z": 1.4142135623730951
+    },
+    "occupied": true,
+    "piece_name": "Green",
+    "piece_color": "#cbe600"
+  },
+  "50": {
+    "coordinate": {
+      "x": 1.5,
+      "y": 1.5,
+      "z": 2.121320343559643
+    },
+    "occupied": true,
+    "piece_name": "Green",
+    "piece_color": "#cbe600"
+  },
+  "51": {
+    "coordinate": {
+      "x": 2.5,
+      "y": 1.5,
+      "z": 2.121320343559643
+    },
+    "occupied": true,
+    "piece_name": "Pink",
+    "piece_color": "#ed66aa"
+  },
+  "52": {
+    "coordinate": {
+      "x": 1.5,
+      "y": 2.5,
+      "z": 2.121320343559643
+    },
+    "occupied": true,
+    "piece_name": "Pink",
+    "piece_color": "#ed66aa"
+  },
+  "53": {
+    "coordinate": {
+      "x": 2.5,
+      "y": 2.5,
+      "z": 2.121320343559643
+    },
+    "occupied": true,
+    "piece_name": "Green",
+    "piece_color": "#cbe600"
+  },
+  "54": {
+    "coordinate": {
+      "x": 2.0,
+      "y": 2.0,
+      "z": 2.8284271247461903
+    },
+    "occupied": true,
+    "piece_name": "Green",
+    "piece_color": "#cbe600"
+  }
+}

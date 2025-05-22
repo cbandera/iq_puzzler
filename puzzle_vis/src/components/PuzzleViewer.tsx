@@ -207,7 +207,9 @@ export default function PuzzleViewer({ puzzleState: initialPuzzleState, zScale }
   useEffect(() => {
     fetch('/data/piece_library.json')
       .then(response => response.json())
-      .then(data => setPieceLibrary(data))
+      .then(data => {
+        setPieceLibrary(data); 
+      })
       .catch(error => console.error('Failed to load piece library:', error));
 
     if (initialPuzzleState) {
@@ -264,45 +266,71 @@ export default function PuzzleViewer({ puzzleState: initialPuzzleState, zScale }
   };
 
   const solvePuzzle = async () => {
-    if (!modifiedPuzzleState) return;
+    if (!modifiedPuzzleState || pieceLibrary.length === 0) { 
+        alert('Puzzle state or piece library not loaded.');
+        return;
+    }
     try {
       setIsSolving(true);
       setSolverOutput('');
       setShowSolverOutput(true);
       const timestamp = new Date().getTime();
-      const puzzleStateFilename = `puzzle-state-${timestamp}.json`;
-      const solutionFilename = `solution-${timestamp}.json`;
-      await exportPuzzleStateToFile(puzzleStateFilename);
+      const solutionFilenameHint = `solution-${timestamp}.json`; 
+
+      const puzzleStateContent = JSON.stringify(modifiedPuzzleState);
+      const libraryContent = JSON.stringify(pieceLibrary);
+
       const response = await fetch('/api/solve-puzzle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          puzzleStateFile: puzzleStateFilename,
-          libraryFile: 'piece_library.json',
-          solutionFile: solutionFilename
+          puzzleStateContent: puzzleStateContent,
+          libraryContent: libraryContent,
+          solutionFile: solutionFilenameHint 
         })
       });
+
       if (!response.ok) throw new Error(`Failed to start solver: ${response.statusText}`);
+
       const reader = response.body?.getReader();
       if (!reader) throw new Error('Failed to get response reader');
-      let solutionFound = false;
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = new TextDecoder().decode(value);
         const events = chunk.split('\n\n').filter(Boolean);
+
         for (const event of events) {
           if (event.startsWith('data: ')) {
             try {
-              const data = JSON.parse(event.slice(5));
-              if (data.output) {
-                setSolverOutput(prev => prev + data.output);
-                if (data.output.includes('Solution found!')) solutionFound = true;
+              const eventData = JSON.parse(event.slice(5));
+              if (eventData.output) {
+                setSolverOutput(prev => prev + eventData.output);
               }
-              if (data.completed && data.success && solutionFound) {
-                await importSolution(solutionFilename);
+              if (eventData.completed && eventData.success) {
+                if (eventData.solutionContent) {
+                  try {
+                    const newPuzzleState = JSON.parse(eventData.solutionContent);
+                    if (!validatePuzzleData(newPuzzleState)) {
+                      throw new Error('Invalid solution data format received from server.');
+                    }
+                    setModifiedPuzzleState(newPuzzleState);
+                    setSolverOutput(prev => prev + '\nSolution applied from server.');
+                  } catch (parseError) {
+                    console.error('Error parsing solution content:', parseError);
+                    setSolverOutput(prev => prev + `\nError parsing solution: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+                  }
+                } else {
+                  setSolverOutput(prev => prev + '\nSolver reported success but no solution content was provided.');
+                }
+              } else if (eventData.completed && !eventData.success) {
+                setSolverOutput(prev => prev + '\nSolver reported completion but was not successful.');
               }
-            } catch (e) { console.error('Error parsing event data:', e); }
+            } catch (e) { 
+              console.error('Error parsing event data:', e); 
+              setSolverOutput(prev => prev + `\nError processing solver event: ${e instanceof Error ? e.message : String(e)}`);
+            }
           }
         }
       }

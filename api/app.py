@@ -4,6 +4,7 @@ import sys
 import subprocess
 import json
 from flask_cors import CORS
+import tempfile
 
 # Add the parent directory to sys.path so we can import modules from the main project
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -16,75 +17,88 @@ CORS(app)  # Enable CORS for all routes
 def solve_puzzle():
     try:
         data = request.json
-        puzzleStateFile = data.get("puzzleStateFile")
-        libraryFile = data.get("libraryFile")
-        solutionFile = data.get("solutionFile")
+        puzzleStateContent = data.get("puzzleStateContent")
+        libraryContent = data.get("libraryContent")
+        solutionFile_hint = data.get("solutionFile")
 
-        if not puzzleStateFile or not libraryFile or not solutionFile:
-            return jsonify({"error": "Missing required parameters"}), 400
+        if not puzzleStateContent or not libraryContent:
+            return jsonify({"error": "Missing puzzleStateContent or libraryContent"}), 400
 
-        # Get the paths relative to the iq_puzzler project root
-        puzzleStatePath = os.path.join(
-            "puzzle_vis", "public", "data", "temp", puzzleStateFile
-        )
-        libraryPath = os.path.join("puzzle_vis", "public", "data", libraryFile)
-        solutionPath = os.path.join(
-            "puzzle_vis", "public", "data", "temp", solutionFile
-        )
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json', prefix='puzzle_') as tmp_puzzle_state_file, \
+             tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json', prefix='library_') as tmp_library_file, \
+             tempfile.NamedTemporaryFile(mode='r', delete=False, suffix='.json', prefix='solution_') as tmp_solution_file:
 
-        # Build the command arguments
+            tmp_puzzle_state_file.write(puzzleStateContent)
+            tmp_library_file.write(libraryContent)
+
+            tmp_puzzle_state_path = tmp_puzzle_state_file.name
+            tmp_library_path = tmp_library_file.name
+            tmp_solution_path = tmp_solution_file.name
+
         args = [
             "--initial",
-            puzzleStatePath,
+            tmp_puzzle_state_path,
             "--library",
-            libraryPath,
+            tmp_library_path,
             "--mode",
             "pyramid",
             "--solver",
             "dlx",
             "--output",
-            solutionPath,
+            tmp_solution_path,
         ]
 
         def generate():
-            # Spawn the process
-            process = subprocess.Popen(
-                ["iq-puzzler"] + args,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                bufsize=1,
-                cwd=os.path.abspath(os.path.dirname(os.path.dirname(__file__))),
-            )
+            solution_content_final = None
+            try:
+                process = subprocess.Popen(
+                    ["iq-puzzler"] + args,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    bufsize=1,
+                    cwd=os.path.abspath(os.path.dirname(os.path.dirname(__file__))),
+                )
 
-            # Stream stdout
-            for line in process.stdout:
-                yield f"data: {json.dumps({'output': line})}\n\n"
+                for line in process.stdout:
+                    yield f"data: {json.dumps({'output': line})}\n\n"
 
-            # Stream stderr
-            for line in process.stderr:
-                yield f"data: {json.dumps({'output': line, 'error': True})}\n\n"
+                for line in process.stderr:
+                    yield f"data: {json.dumps({'output': line, 'error': True})}\n\n"
 
-            # Wait for process to complete
-            exit_code = process.wait()
+                exit_code = process.wait()
 
-            # Send completion event
-            completion_data = {
-                "completed": True,
-                "success": exit_code == 0,
-                "solutionFile": solutionFile,
-                "exitCode": exit_code,
-            }
-            yield f"data: {json.dumps(completion_data)}\n\n"
+                solution_content_final = ""
+                if exit_code == 0:
+                    with open(tmp_solution_path, 'r') as f_sol:
+                        solution_content_final = f_sol.read()
+
+                completion_data = {
+                    "completed": True,
+                    "success": exit_code == 0,
+                    "solutionContent": solution_content_final,
+                    "solutionFileHint": solutionFile_hint,
+                    "exitCode": exit_code,
+                }
+                yield f"data: {json.dumps(completion_data)}\n\n"
+            finally:
+                os.unlink(tmp_puzzle_state_path)
+                os.unlink(tmp_library_path)
+                os.unlink(tmp_solution_path)
 
         return Response(
             stream_with_context(generate()),
             mimetype="text/event-stream",
-            headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+            headers={
+                "Content-Type": "text/event-stream",
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+            },
         )
 
     except Exception as e:
-        return jsonify({"error": "Error running solver", "details": str(e)}), 500
+        app.logger.error(f"Error in solve_puzzle: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/health", methods=["GET"])
