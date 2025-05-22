@@ -5,9 +5,9 @@
       "y": 0.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Mint Green",
+    "piece_color": "#7dfabe"
   },
   "1": {
     "coordinate": {
@@ -15,9 +15,9 @@
       "y": 0.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Mint Green",
+    "piece_color": "#7dfabe"
   },
   "2": {
     "coordinate": {
@@ -25,9 +25,9 @@
       "y": 0.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Mint Green",
+    "piece_color": "#7dfabe"
   },
   "3": {
     "coordinate": {
@@ -35,9 +35,9 @@
       "y": 0.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Wine Red",
+    "piece_color": "#9e2f39"
   },
   "4": {
     "coordinate": {
@@ -45,9 +45,9 @@
       "y": 0.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Wine Red",
+    "piece_color": "#9e2f39"
   },
   "5": {
     "coordinate": {
@@ -55,9 +55,9 @@
       "y": 1.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Mint Green",
+    "piece_color": "#7dfabe"
   },
   "6": {
     "coordinate": {
@@ -65,9 +65,9 @@
       "y": 1.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Mint Green",
+    "piece_color": "#7dfabe"
   },
   "7": {
     "coordinate": {
@@ -75,9 +75,9 @@
       "y": 1.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Wine Red",
+    "piece_color": "#9e2f39"
   },
   "8": {
     "coordinate": {
@@ -85,9 +85,9 @@
       "y": 1.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Wine Red",
+    "piece_color": "#9e2f39"
   },
   "9": {
     "coordinate": {
@@ -95,9 +95,9 @@
       "y": 1.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Pink",
+    "piece_color": "#ed66aa"
   },
   "10": {
     "coordinate": {
@@ -105,9 +105,9 @@
       "y": 2.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Orange",
+    "piece_color": "#ffa200"
   },
   "11": {
     "coordinate": {
@@ -115,9 +115,9 @@
       "y": 2.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Yellow",
+    "piece_color": "#ffff00"
   },
   "12": {
     "coordinate": {
@@ -125,9 +125,9 @@
       "y": 2.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Yellow",
+    "piece_color": "#ffff00"
   },
   "13": {
     "coordinate": {
@@ -135,9 +135,9 @@
       "y": 2.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Yellow",
+    "piece_color": "#ffff00"
   },
   "14": {
     "coordinate": {
@@ -145,9 +145,9 @@
       "y": 2.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Yellow",
+    "piece_color": "#ffff00"
   },
   "15": {
     "coordinate": {
@@ -155,9 +155,9 @@
       "y": 3.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Orange",
+    "piece_color": "#ffa200"
   },
   "16": {
     "coordinate": {
@@ -165,9 +165,9 @@
       "y": 3.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Orange",
+    "piece_color": "#ffa200"
   },
   "17": {
     "coordinate": {
@@ -175,9 +175,9 @@
       "y": 3.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Orange",
+    "piece_color": "#ffa200"
   },
   "18": {
     "coordinate": {
@@ -185,9 +185,9 @@
       "y": 3.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Yellow",
+    "piece_color": "#ffff00"
   },
   "19": {
     "coordinate": {
@@ -195,9 +195,9 @@
       "y": 3.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Blue",
+    "piece_color": "#0000ff"
   },
   "20": {
     "coordinate": {
@@ -205,9 +205,9 @@
       "y": 4.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Red",
+    "piece_color": "#e80008"
   },
   "21": {
     "coordinate": {
@@ -215,9 +215,9 @@
       "y": 4.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Orange",
+    "piece_color": "#ffa200"
   },
   "22": {
     "coordinate": {
@@ -225,9 +225,9 @@
       "y": 4.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Blue",
+    "piece_color": "#0000ff"
   },
   "23": {
     "coordinate": {
@@ -235,9 +235,9 @@
       "y": 4.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Blue",
+    "piece_color": "#0000ff"
   },
   "24": {
     "coordinate": {
@@ -245,9 +245,9 @@
       "y": 4.0,
       "z": 0.0
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Blue",
+    "piece_color": "#0000ff"
   },
   "25": {
     "coordinate": {
@@ -255,9 +255,9 @@
       "y": 0.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Turquise",
+    "piece_color": "#31e8d3"
   },
   "26": {
     "coordinate": {
@@ -265,9 +265,9 @@
       "y": 0.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Turquise",
+    "piece_color": "#31e8d3"
   },
   "27": {
     "coordinate": {
@@ -275,9 +275,9 @@
       "y": 0.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Purple",
+    "piece_color": "#980ee8"
   },
   "28": {
     "coordinate": {
@@ -285,9 +285,9 @@
       "y": 0.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Dark Green",
+    "piece_color": "#5bb589"
   },
   "29": {
     "coordinate": {
@@ -295,9 +295,9 @@
       "y": 1.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Turquise",
+    "piece_color": "#31e8d3"
   },
   "30": {
     "coordinate": {
@@ -305,9 +305,9 @@
       "y": 1.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Purple",
+    "piece_color": "#980ee8"
   },
   "31": {
     "coordinate": {
@@ -315,9 +315,9 @@
       "y": 1.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Dark Green",
+    "piece_color": "#5bb589"
   },
   "32": {
     "coordinate": {
@@ -325,9 +325,9 @@
       "y": 1.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Pink",
+    "piece_color": "#ed66aa"
   },
   "33": {
     "coordinate": {
@@ -335,9 +335,9 @@
       "y": 2.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Purple",
+    "piece_color": "#980ee8"
   },
   "34": {
     "coordinate": {
@@ -345,9 +345,9 @@
       "y": 2.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Green",
+    "piece_color": "#cbe600"
   },
   "35": {
     "coordinate": {
@@ -355,9 +355,9 @@
       "y": 2.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Pink",
+    "piece_color": "#ed66aa"
   },
   "36": {
     "coordinate": {
@@ -365,9 +365,9 @@
       "y": 2.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Green",
+    "piece_color": "#cbe600"
   },
   "37": {
     "coordinate": {
@@ -375,9 +375,9 @@
       "y": 3.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Red",
+    "piece_color": "#e80008"
   },
   "38": {
     "coordinate": {
@@ -385,9 +385,9 @@
       "y": 3.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Green",
+    "piece_color": "#cbe600"
   },
   "39": {
     "coordinate": {
@@ -395,9 +395,9 @@
       "y": 3.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Green",
+    "piece_color": "#cbe600"
   },
   "40": {
     "coordinate": {
@@ -405,9 +405,9 @@
       "y": 3.5,
       "z": 0.7071067811865476
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Green",
+    "piece_color": "#cbe600"
   },
   "41": {
     "coordinate": {
@@ -415,9 +415,9 @@
       "y": 1.0,
       "z": 1.4142135623730951
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Light Blue",
+    "piece_color": "#76b7e8"
   },
   "42": {
     "coordinate": {
@@ -425,9 +425,9 @@
       "y": 1.0,
       "z": 1.4142135623730951
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Purple",
+    "piece_color": "#980ee8"
   },
   "43": {
     "coordinate": {
@@ -435,9 +435,9 @@
       "y": 1.0,
       "z": 1.4142135623730951
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Dark Green",
+    "piece_color": "#5bb589"
   },
   "44": {
     "coordinate": {
@@ -445,9 +445,9 @@
       "y": 2.0,
       "z": 1.4142135623730951
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Purple",
+    "piece_color": "#980ee8"
   },
   "45": {
     "coordinate": {
@@ -455,9 +455,9 @@
       "y": 2.0,
       "z": 1.4142135623730951
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Red",
+    "piece_color": "#e80008"
   },
   "46": {
     "coordinate": {
@@ -465,9 +465,9 @@
       "y": 2.0,
       "z": 1.4142135623730951
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Pink",
+    "piece_color": "#ed66aa"
   },
   "47": {
     "coordinate": {
@@ -475,9 +475,9 @@
       "y": 3.0,
       "z": 1.4142135623730951
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Red",
+    "piece_color": "#e80008"
   },
   "48": {
     "coordinate": {
@@ -485,9 +485,9 @@
       "y": 3.0,
       "z": 1.4142135623730951
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Pink",
+    "piece_color": "#ed66aa"
   },
   "49": {
     "coordinate": {
@@ -495,9 +495,9 @@
       "y": 3.0,
       "z": 1.4142135623730951
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Light Blue",
+    "piece_color": "#76b7e8"
   },
   "50": {
     "coordinate": {
@@ -505,9 +505,9 @@
       "y": 1.5,
       "z": 2.121320343559643
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Light Blue",
+    "piece_color": "#76b7e8"
   },
   "51": {
     "coordinate": {
@@ -515,9 +515,9 @@
       "y": 1.5,
       "z": 2.121320343559643
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Dark Green",
+    "piece_color": "#5bb589"
   },
   "52": {
     "coordinate": {
@@ -525,9 +525,9 @@
       "y": 2.5,
       "z": 2.121320343559643
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Red",
+    "piece_color": "#e80008"
   },
   "53": {
     "coordinate": {
@@ -535,9 +535,9 @@
       "y": 2.5,
       "z": 2.121320343559643
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Light Blue",
+    "piece_color": "#76b7e8"
   },
   "54": {
     "coordinate": {
@@ -545,8 +545,8 @@
       "y": 2.0,
       "z": 2.8284271247461903
     },
-    "occupied": false,
-    "piece_name": null,
-    "piece_color": null
+    "occupied": true,
+    "piece_name": "Light Blue",
+    "piece_color": "#76b7e8"
   }
 }
