@@ -89,14 +89,14 @@ function Scene({
     camera.up.set(0, 0, 1);
     camera.lookAt(center);
     if (controlsRef.current) {
-        controlsRef.current.update();
+      controlsRef.current.update();
     }
     setResetKey(prev => prev + 1);
   }, [camera, center]);
 
   useEffect(() => {
     resetView();
-  }, [resetView]); 
+  }, [resetView]);
 
   useEffect(() => {
     const element = document.getElementById('reset-view-button');
@@ -208,7 +208,7 @@ export default function PuzzleViewer({ puzzleState: initialPuzzleState, zScale }
     fetch('/data/piece_library.json')
       .then(response => response.json())
       .then(data => {
-        setPieceLibrary(data); 
+        setPieceLibrary(data);
       })
       .catch(error => console.error('Failed to load piece library:', error));
 
@@ -266,16 +266,16 @@ export default function PuzzleViewer({ puzzleState: initialPuzzleState, zScale }
   };
 
   const solvePuzzle = async () => {
-    if (!modifiedPuzzleState || pieceLibrary.length === 0) { 
-        alert('Puzzle state or piece library not loaded.');
-        return;
+    if (!modifiedPuzzleState || pieceLibrary.length === 0) {
+      alert('Puzzle state or piece library not loaded.');
+      return;
     }
     try {
       setIsSolving(true);
       setSolverOutput('');
       setShowSolverOutput(true);
       const timestamp = new Date().getTime();
-      const solutionFilenameHint = `solution-${timestamp}.json`; 
+      const solutionFilenameHint = `solution-${timestamp}.json`;
 
       const puzzleStateContent = JSON.stringify(modifiedPuzzleState);
       const libraryContent = JSON.stringify(pieceLibrary);
@@ -286,7 +286,7 @@ export default function PuzzleViewer({ puzzleState: initialPuzzleState, zScale }
         body: JSON.stringify({
           puzzleStateContent: puzzleStateContent,
           libraryContent: libraryContent,
-          solutionFile: solutionFilenameHint 
+          solutionFile: solutionFilenameHint
         })
       });
 
@@ -327,8 +327,8 @@ export default function PuzzleViewer({ puzzleState: initialPuzzleState, zScale }
               } else if (eventData.completed && !eventData.success) {
                 setSolverOutput(prev => prev + '\nSolver reported completion but was not successful.');
               }
-            } catch (e) { 
-              console.error('Error parsing event data:', e); 
+            } catch (e) {
+              console.error('Error parsing event data:', e);
               setSolverOutput(prev => prev + `\nError processing solver event: ${e instanceof Error ? e.message : String(e)}`);
             }
           }
@@ -377,40 +377,6 @@ export default function PuzzleViewer({ puzzleState: initialPuzzleState, zScale }
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
-  };
-
-  const exportPuzzleStateToFile = async (filename: string) => {
-    if (!modifiedPuzzleState) throw new Error('No puzzle state to export');
-    const dataStr = JSON.stringify(modifiedPuzzleState, null, 2);
-    try {
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const formData = new FormData();
-      formData.append('file', blob, filename);
-      formData.append('path', 'data');
-      formData.append('subdir', 'temp');
-      const response = await fetch('/api/save-file', {
-        method: 'POST',
-        body: formData
-      });
-      if (!response.ok) throw new Error(`Failed to save file: ${response.statusText}`);
-      return await response.json();
-    } catch (error) {
-      console.error('Error saving puzzle state:', error);
-      throw error;
-    }
-  };
-
-  const importSolution = async (solutionFilename: string) => {
-    try {
-      const response = await fetch(`/data/temp/${solutionFilename}`);
-      if (!response.ok) throw new Error(`Failed to load solution: ${response.statusText}`);
-      const solutionData = await response.json();
-      setModifiedPuzzleState(solutionData);
-      return solutionData;
-    } catch (error) {
-      console.error('Error importing solution:', error);
-      throw error;
-    }
   };
 
   return (

@@ -63,7 +63,6 @@ export async function POST(request: NextRequest) {
           }
 
           // Pump the data from the Python backend to the client
-          // eslint-disable-next-line no-constant-condition
           while (true) {
             const { done, value } = await reader.read();
             if (done) {
