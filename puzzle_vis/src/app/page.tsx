@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { PuzzleState } from '@/types/puzzle'
-import PuzzleViewer from './visualizer/page';
+import PuzzleViewer from '@/components/PuzzleViewer';
 
 const DEFAULT_SOLUTION_PATH = '/data/solution.json';
 
