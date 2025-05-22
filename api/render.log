@@ -1,0 +1,75 @@
+2025-05-22T17:47:12.680743699Z ==> Deploying...
+2025-05-22T17:47:36.406151351Z ==> Running 'gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app'
+2025-05-22T17:47:37.299612464Z Traceback (most recent call last):
+2025-05-22T17:47:37.299642354Z   File "/opt/render/project/src/.venv/bin/gunicorn", line 8, in <module>
+2025-05-22T17:47:37.299656695Z     sys.exit(run())
+2025-05-22T17:47:37.299667845Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+2025-05-22T17:47:37.299836218Z     WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+2025-05-22T17:47:37.299851829Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 236, in run
+2025-05-22T17:47:37.300007421Z     super().run()
+2025-05-22T17:47:37.300013482Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 72, in run
+2025-05-22T17:47:37.300123944Z     Arbiter(self).run()
+2025-05-22T17:47:37.300129944Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/arbiter.py", line 58, in __init__
+2025-05-22T17:47:37.300218185Z     self.setup(app)
+2025-05-22T17:47:37.300225626Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/arbiter.py", line 118, in setup
+2025-05-22T17:47:37.300340848Z     self.app.wsgi()
+2025-05-22T17:47:37.300346538Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 67, in wsgi
+2025-05-22T17:47:37.300414429Z     self.callable = self.load()
+2025-05-22T17:47:37.300419799Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+2025-05-22T17:47:37.300534331Z     return self.load_wsgiapp()
+2025-05-22T17:47:37.300539511Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+2025-05-22T17:47:37.300611643Z     return util.import_app(self.app_uri)
+2025-05-22T17:47:37.300621043Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/util.py", line 371, in import_app
+2025-05-22T17:47:37.300742006Z     mod = importlib.import_module(module)
+2025-05-22T17:47:37.300747695Z   File "/opt/render/project/python/Python-3.10.12/lib/python3.10/importlib/__init__.py", line 126, in import_module
+2025-05-22T17:47:37.300838727Z     return _bootstrap._gcd_import(name[level:], package, level)
+2025-05-22T17:47:37.300852457Z   File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+2025-05-22T17:47:37.30098829Z   File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+2025-05-22T17:47:37.301056631Z   File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+2025-05-22T17:47:37.301169314Z   File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+2025-05-22T17:47:37.301234985Z   File "<frozen importlib._bootstrap_external>", line 879, in exec_module
+2025-05-22T17:47:37.301370147Z   File "<frozen importlib._bootstrap_external>", line 1017, in get_code
+2025-05-22T17:47:37.301434028Z   File "<frozen importlib._bootstrap_external>", line 947, in source_to_code
+2025-05-22T17:47:37.30150843Z   File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+2025-05-22T17:47:37.301584031Z   File "/opt/render/project/src/api/app.py", line 62
+2025-05-22T17:47:37.301587682Z     yield f"data: {json.dumps({
+2025-05-22T17:47:37.301589531Z           ^
+2025-05-22T17:47:37.301591662Z SyntaxError: unterminated string literal (detected at line 62)
+2025-05-22T17:47:40.471544036Z ==> Exited with status 1
+2025-05-22T17:47:40.615447245Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2025-05-22T17:47:46.506304244Z ==> Running 'gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app'
+2025-05-22T17:47:47.402100712Z Traceback (most recent call last):
+2025-05-22T17:47:47.402124003Z   File "/opt/render/project/src/.venv/bin/gunicorn", line 8, in <module>
+2025-05-22T17:47:47.402161743Z     sys.exit(run())
+2025-05-22T17:47:47.402166703Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+2025-05-22T17:47:47.402279866Z     WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+2025-05-22T17:47:47.402285586Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 236, in run
+2025-05-22T17:47:47.402413668Z     super().run()
+2025-05-22T17:47:47.402420448Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 72, in run
+2025-05-22T17:47:47.40250121Z     Arbiter(self).run()
+2025-05-22T17:47:47.4025066Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/arbiter.py", line 58, in __init__
+2025-05-22T17:47:47.402595412Z     self.setup(app)
+2025-05-22T17:47:47.402599061Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/arbiter.py", line 118, in setup
+2025-05-22T17:47:47.402686533Z     self.app.wsgi()
+2025-05-22T17:47:47.402692653Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 67, in wsgi
+2025-05-22T17:47:47.402775055Z     self.callable = self.load()
+2025-05-22T17:47:47.402810276Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+2025-05-22T17:47:47.402907538Z     return self.load_wsgiapp()
+2025-05-22T17:47:47.402918518Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+2025-05-22T17:47:47.402993719Z     return util.import_app(self.app_uri)
+2025-05-22T17:47:47.402997349Z   File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/util.py", line 371, in import_app
+2025-05-22T17:47:47.403134852Z     mod = importlib.import_module(module)
+2025-05-22T17:47:47.403138832Z   File "/opt/render/project/python/Python-3.10.12/lib/python3.10/importlib/__init__.py", line 126, in import_module
+2025-05-22T17:47:47.403246004Z     return _bootstrap._gcd_import(name[level:], package, level)
+2025-05-22T17:47:47.403251524Z   File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+2025-05-22T17:47:47.403389977Z   File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+2025-05-22T17:47:47.403472838Z   File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+2025-05-22T17:47:47.40356417Z   File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+2025-05-22T17:47:47.403666922Z   File "<frozen importlib._bootstrap_external>", line 879, in exec_module
+2025-05-22T17:47:47.403770404Z   File "<frozen importlib._bootstrap_external>", line 1017, in get_code
+2025-05-22T17:47:47.403891636Z   File "<frozen importlib._bootstrap_external>", line 947, in source_to_code
+2025-05-22T17:47:47.403971658Z   File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+2025-05-22T17:47:47.4040758Z   File "/opt/render/project/src/api/app.py", line 62
+2025-05-22T17:47:47.40408016Z     yield f"data: {json.dumps({
+2025-05-22T17:47:47.40408293Z           ^
+2025-05-22T17:47:47.40408593Z SyntaxError: unterminated string literal (detected at line 62)
